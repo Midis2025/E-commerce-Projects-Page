@@ -775,8 +775,10 @@ h3 {
 .line {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.1em;
-  margin-bottom: -0.1em;
+  padding-top: 0.12em;
+  margin-top: -0.12em;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
 }
 
 .line__inner {
