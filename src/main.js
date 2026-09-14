@@ -153,7 +153,7 @@ function renderHero() {
     .join('');
   const steps = (hero.steps || [])
     .map(
-      (s, i) => `<li class="step" data-hero-in style="--d:${i + 3}">
+      (s, i) => `<li class="step glass glass-soft" data-hero-in style="--d:${i + 3}">
         <span class="step__num">${esc(s.number)}</span>
         <span class="step__title">${esc(s.title)}</span>
         <span class="step__text">${esc(s.text)}</span>
@@ -170,7 +170,7 @@ function renderHero() {
       </div>
       <div class="hero__grid">
         <h1 class="hero__title" id="hero-title">${lines}</h1>
-        <div class="hero__aside" data-hero-in style="--d:1">
+        <div class="hero__aside glass glass-strong" data-hero-in style="--d:1">
           <p class="hero__intro">${esc(hero.intro)}</p>
           ${meta ? `<dl class="hero__meta">${meta}</dl>` : ''}
           <div class="hero__cta">${button({ label: hero.cta, anchor: '#concepts', iconHtml: icon.down, iconClass: 'btn__icon--down' })}</div>
@@ -236,12 +236,14 @@ function renderPreview(concept) {
 
 function renderConcept(concept, index) {
   const reversed = index % 2 === 1;
-  const theme = concept.theme || (reversed ? 'dark' : 'light');
+  // Both concepts sit on translucent light glass so the fixed background stays
+  // visible; the second is a touch denser. A config `theme: 'dark'` still works.
+  const theme = concept.theme || 'light';
   const traits = (concept.traits || []).filter(Boolean);
   const pages = (concept.pages || []).filter((p) => p && p.name);
 
   return `
-  <section class="concept ${reversed ? 'concept--reverse' : ''} theme-${theme}" id="${esc(concept.id)}"
+  <section class="concept ${reversed ? 'concept--reverse' : ''} theme-${theme} glass-section" id="${esc(concept.id)}"
     data-concept="${esc(concept.id)}" aria-labelledby="${esc(concept.id)}-title">
     <div class="page-container concept__grid">
       <header class="concept__head">
@@ -311,7 +313,7 @@ function renderReview() {
     .join('');
 
   return `
-  <section class="review" id="review" aria-labelledby="review-title">
+  <section class="review glass-section" id="review" aria-labelledby="review-title">
     <div class="page-container">
       <div class="review__head">
         <p class="eyebrow" data-reveal>${esc(review.eyebrow)}</p>
@@ -326,7 +328,7 @@ function renderReview() {
 function renderFinal() {
   const { finalCta } = site;
   return `
-  <section class="final theme-dark" aria-labelledby="final-title">
+  <section class="final theme-dark glass-section" aria-labelledby="final-title">
     <div class="page-container final__inner">
       <p class="eyebrow" data-reveal>${esc(finalCta.eyebrow)}</p>
       <h2 class="final__title" id="final-title" data-reveal data-final-title></h2>
@@ -347,7 +349,7 @@ function renderFinal() {
 function renderFooter() {
   const { brand, footer } = site;
   return `
-  <footer class="footer theme-dark" data-inertable>
+  <footer class="footer glass-section" data-inertable>
     <div class="page-container footer__inner">
       <p class="footer__brand"><span class="brand__glyph" aria-hidden="true"></span>${esc(brand.mark)}</p>
       <p class="footer__note">${esc(footer.note)}${brand.project ? ` <span>${esc(brand.project)}</span>` : ''}</p>
@@ -372,28 +374,36 @@ function renderOverlays() {
 function render() {
   document.title = site.title || document.title;
   const bgImage = site.background?.image?.trim();
+  // One fixed background for the whole site (never tied to scroll); all content scrolls above it.
   $('#app').innerHTML = `
-    ${bgImage ? `<div class="site-background" aria-hidden="true" style="background-image:url('${esc(bgImage)}')"></div>` : ''}
-    <div class="site-background-overlay" aria-hidden="true"></div>
-    ${renderHeader()}
-    <main id="main" data-inertable>
-      ${renderHero()}
-      ${renderSubnav()}
-      <div class="concepts" id="concepts">
-        <div class="concepts-intro">
-          <div class="page-container concepts-intro__inner">
-            <p class="eyebrow" data-reveal>${esc(site.conceptsIntro.eyebrow)}</p>
-            <h2 class="concepts-intro__title" data-reveal>${esc(site.conceptsIntro.heading)}</h2>
-            <p class="concepts-intro__count" data-reveal aria-hidden="true">${pad(concepts.length)}</p>
-          </div>
-        </div>
-        ${concepts.map(renderConcept).join('')}
+    <div class="site-root">
+      <div class="global-background" aria-hidden="true">
+        ${bgImage ? `<div class="global-background-image" style="background-image:url('${esc(bgImage)}')"></div>` : ''}
+        <div class="global-background-overlay"></div>
+        <div class="global-background-light"></div>
       </div>
-      ${renderReview()}
-      ${renderFinal()}
-    </main>
-    ${renderFooter()}
-    ${renderOverlays()}
+      <div class="site-content">
+        ${renderHeader()}
+        <main id="main" data-inertable>
+          ${renderHero()}
+          ${renderSubnav()}
+          <div class="concepts" id="concepts">
+            <div class="concepts-intro">
+              <div class="page-container concepts-intro__inner">
+                <p class="eyebrow" data-reveal>${esc(site.conceptsIntro.eyebrow)}</p>
+                <h2 class="concepts-intro__title" data-reveal>${esc(site.conceptsIntro.heading)}</h2>
+                <p class="concepts-intro__count" data-reveal aria-hidden="true">${pad(concepts.length)}</p>
+              </div>
+            </div>
+            ${concepts.map(renderConcept).join('')}
+          </div>
+          ${renderReview()}
+          ${renderFinal()}
+        </main>
+        ${renderFooter()}
+        ${renderOverlays()}
+      </div>
+    </div>
   `;
 }
 
@@ -838,6 +848,78 @@ function setupReveal() {
   els.forEach((el) => observer.observe(el));
 }
 
+/* ------------------------------------------------------------------
+ * Depth: subtle pointer tilt on the concept previews.
+ * Desktop mouse only; off for touch and reduced motion. Work happens
+ * once per pointer move (one rAF), never in a continuous loop.
+ * ------------------------------------------------------------------ */
+
+const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+const depthEnabled = () => finePointer.matches && !reducedMotion.matches && window.innerWidth >= 1024;
+
+function setupDepth() {
+  const previews = $$('.concept .preview');
+  const visible = new Set(previews);
+  let active = null;
+  let pointer = null;
+  let frame = 0;
+
+  // Only tilt previews that are on screen.
+  if ('IntersectionObserver' in window) {
+    visible.clear();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
+    });
+    previews.forEach((p) => observer.observe(p));
+  }
+
+  const clearTilt = (preview) => {
+    preview.style.removeProperty('--rx');
+    preview.style.removeProperty('--ry');
+  };
+
+  const flush = () => {
+    frame = 0;
+    const { x, y } = pointer;
+    if (!active || !visible.has(active)) return;
+    const rect = active.getBoundingClientRect();
+    const px = Math.max(-0.5, Math.min(0.5, (x - rect.left) / rect.width - 0.5));
+    const py = Math.max(-0.5, Math.min(0.5, (y - rect.top) / rect.height - 0.5));
+    const amount = window.innerWidth < 1200 ? 0.5 : 1; // gentler on small laptops
+    active.style.setProperty('--ry', `${(px * 4 * amount).toFixed(2)}deg`); // max 2deg
+    active.style.setProperty('--rx', `${(-py * 3 * amount).toFixed(2)}deg`); // max 1.5deg
+  };
+
+  window.addEventListener(
+    'pointermove',
+    (event) => {
+      if (event.pointerType !== 'mouse' || !depthEnabled()) return;
+      pointer = { x: event.clientX, y: event.clientY };
+      if (!frame) frame = requestAnimationFrame(flush);
+    },
+    { passive: true },
+  );
+
+  previews.forEach((preview) => {
+    preview.addEventListener('pointerenter', (event) => {
+      if (event.pointerType === 'mouse') active = preview;
+    });
+    preview.addEventListener('pointerleave', () => {
+      if (active === preview) active = null;
+      clearTilt(preview);
+    });
+  });
+
+  const reset = () => {
+    if (depthEnabled()) return;
+    active = null;
+    previews.forEach(clearTilt);
+  };
+  reducedMotion.addEventListener('change', reset);
+  finePointer.addEventListener('change', reset);
+  window.addEventListener('resize', reset, { passive: true });
+}
+
 function bindMediaFallbacks(root = document) {
   $$('[data-media] img', root).forEach((img) => {
     const fail = () => img.closest('[data-media]').classList.add('is-missing');
@@ -941,6 +1023,7 @@ function init() {
   bindEvents();
   setupScrollEffects();
   setupReveal();
+  setupDepth();
 
   // Start the hero entrance once fonts are ready (with a short cap so it never stalls).
   const start = () => document.body.classList.add('is-loaded');

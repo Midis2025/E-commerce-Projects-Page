@@ -49,7 +49,7 @@ export const site = {
    * Leave `image` empty to use the plain warm background.
    */
   background: {
-    image: '/images/design-review-bg.jpg',
+    image: '/images/design-review-background.webp',
   },
 
   hero: {

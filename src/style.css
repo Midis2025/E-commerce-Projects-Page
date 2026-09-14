@@ -15,11 +15,6 @@
   --accent-deep: #8c4a28;
   --accent-soft: #dd9d74;
 
-  /* Section surfaces (semi-transparent over the site background) */
-  --surface-light: rgba(247, 244, 238, 0.78);
-  --surface-neutral: rgba(236, 230, 219, 0.86);
-  --surface-dark: rgba(20, 20, 20, 0.93);
-
   /* Type */
   --display: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
   --sans: 'Inter Tight', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -31,14 +26,20 @@
   --split-cols: minmax(0, 1.1fr) minmax(360px, 0.75fr);
   --split-gap: clamp(72px, 8vw, 150px);
 
-  /* Vertical rhythm */
-  --section-y: clamp(56px, 8vw, 128px);
-  --section-y-sm: clamp(48px, 6vw, 96px);
+  /* Vertical rhythm — desktop 80–112 · tablet 64–88 · mobile 48–64 */
+  --section-y: clamp(48px, 7vw, 112px);
+  --section-y-sm: clamp(40px, 5vw, 80px);
   --block: clamp(32px, 4vw, 56px);
 
   --header-h: 64px;
   --subnav-h: 48px;
   --radius: 3px;
+  --radius-btn: 12px;
+
+  /* Depth — small glass panels bleed just past the content grid so their
+     text stays aligned to the global container. */
+  --panel-bleed: clamp(18px, 2.4vw, 40px);
+  --frame-radius: clamp(18px, 1.7vw, 26px);
 
   /* Motion */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -64,10 +65,18 @@
   }
 }
 
+/* Phones: glass panels sit inside the gutter. */
+@media (max-width: 699px) {
+  :root {
+    --panel-bleed: 0px;
+    --frame-radius: 16px;
+  }
+}
+
 .theme-dark {
   --bg: var(--charcoal);
   --fg: #f3efe7;
-  --fg-muted: #aca69c;
+  --fg-muted: #b5afa5;
   --line: rgba(243, 239, 231, 0.13);
   --line-strong: rgba(243, 239, 231, 0.3);
   --accent-text: var(--accent-soft);
@@ -86,12 +95,15 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  font-style: normal;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   font-synthesis-style: none;
+  /* Transparent: the fixed background layer is the page's only backdrop. */
+  background: transparent;
   scroll-padding-top: calc(var(--header-h) + var(--subnav-h) + 8px);
 }
 
@@ -264,32 +276,171 @@ h3 {
 }
 
 /* ------------------------------------------------------------------
-   Site-wide background image
+   Site root + global background
+   ONE image for the whole site, fixed to the viewport, outside every
+   section. It never reacts to scroll — only a very slow CSS breathing
+   animation (transform / opacity, on the compositor). Sections above it
+   are transparent or translucent, so it shows from header to footer.
+     .global-background  z 0   image → overlay → light
+     .site-content       z 1   header 50 · modal 100 inside
    ------------------------------------------------------------------ */
 
-.site-background,
-.site-background-overlay {
+.site-root {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+  /* clip, not hidden: hidden would create a scroll container and break the sticky header/nav */
+  overflow-x: clip;
+}
+
+.global-background {
   position: fixed;
-  inset: 0;
+  inset: 0 0 auto;
+  z-index: 0;
+  width: 100%;
+  /* lvh (largest viewport) so mobile URL-bar changes never resize or jump the image */
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.site-background {
-  z-index: -2;
+.site-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Oversized so the slow scale/drift never reveals an edge. */
+.global-background-image {
+  position: absolute;
+  inset: -3%;
+  width: 106%;
+  height: 106%;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: saturate(0.7) contrast(0.9);
+  transform: scale(1.03);
+  will-change: transform;
+  animation: backgroundBreath 24s ease-in-out infinite;
 }
 
-.site-background-overlay {
-  z-index: -1;
-  background: rgba(244, 240, 232, 0.72);
+.global-background-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(244, 240, 232, 0.68), rgba(244, 240, 232, 0.58));
 }
 
-@media (max-width: 760px) {
-  .site-background-overlay {
-    background: rgba(244, 240, 232, 0.84);
+.global-background-light {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 25%, rgba(190, 125, 80, 0.12), transparent 36%),
+    radial-gradient(circle at 80% 65%, rgba(255, 255, 255, 0.16), transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(118, 130, 144, 0.08), transparent 34%);
+  opacity: 0.75;
+  animation: backgroundLight 20s ease-in-out infinite;
+}
+
+@keyframes backgroundBreath {
+  0%,
+  100% {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: scale(1.055) translate3d(-0.4%, -0.3%, 0);
+  }
+}
+
+/* Phones: scale only, no drift. */
+@keyframes backgroundBreathMobile {
+  0%,
+  100% {
+    transform: scale(1.03);
+  }
+
+  50% {
+    transform: scale(1.045);
+  }
+}
+
+@keyframes backgroundLight {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 699px) {
+  .global-background-image {
+    animation: backgroundBreathMobile 28s ease-in-out infinite;
+  }
+
+  .global-background-overlay {
+    background: linear-gradient(135deg, rgba(244, 240, 232, 0.74), rgba(244, 240, 232, 0.64));
+  }
+}
+
+/* ------------------------------------------------------------------
+   Glass surface system
+   .glass-section  ONE shared translucent section surface. Sections only
+                   set --section-bg / --section-blur, never a solid
+                   colour, so the single fixed image stays visible.
+   .glass          small bordered panels, with token classes:
+     .glass-soft    process step cells
+     .glass-strong  panels that carry body copy (hero information panel)
+   ------------------------------------------------------------------ */
+
+.glass-section {
+  background: var(--section-bg, rgba(248, 245, 239, 0.3));
+  -webkit-backdrop-filter: blur(var(--section-blur, 10px)) saturate(105%);
+  backdrop-filter: blur(var(--section-blur, 10px)) saturate(105%);
+  border-top: 1px solid var(--section-border-top, rgba(255, 255, 255, 0.18));
+  border-bottom: 1px solid var(--section-border-bottom, rgba(255, 255, 255, 0.14));
+}
+
+.glass-soft {
+  --glass-bg: rgba(247, 244, 238, 0.4);
+  --glass-blur: 12px;
+  --glass-saturate: 110%;
+  --glass-border: rgba(255, 255, 255, 0.34);
+  --glass-shadow: 0 12px 36px rgba(20, 18, 15, 0.05);
+  --glass-highlight: rgba(255, 255, 255, 0.4);
+  --glass-fallback: rgba(247, 244, 238, 0.84);
+}
+
+.glass-strong {
+  --glass-bg: linear-gradient(135deg, rgba(250, 248, 243, 0.72), rgba(246, 242, 235, 0.58));
+  --glass-blur: 20px;
+  --glass-saturate: 120%;
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 18px 50px rgba(20, 18, 15, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+  --glass-fallback: rgba(247, 244, 238, 0.92);
+}
+
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate, 120%));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate, 120%));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight);
+}
+
+/* Without backdrop-filter, raise opacity so text stays readable. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background-color: var(--glass-fallback);
+  }
+
+  .glass-section {
+    background-color: var(--section-fallback, rgba(247, 244, 238, 0.72));
   }
 }
 
@@ -309,9 +460,10 @@ h3 {
   min-height: 54px;
   padding: 0 22px;
   border: 1px solid var(--btn-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-btn);
   background: var(--btn-bg);
   color: var(--btn-fg);
+  box-shadow: var(--btn-shadow, none);
   font-family: var(--sans);
   font-size: 12px;
   font-style: normal;
@@ -324,19 +476,27 @@ h3 {
   transition:
     background-color 0.35s var(--ease),
     color 0.35s var(--ease),
-    border-color 0.35s var(--ease);
+    border-color 0.35s var(--ease),
+    box-shadow 0.35s var(--ease),
+    transform 0.35s var(--ease-out);
 }
 
 .btn--primary {
   --btn-bg: var(--fg);
   --btn-fg: var(--bg);
   --btn-border: var(--fg);
+  --btn-shadow: 0 8px 20px rgba(20, 20, 20, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .btn--primary:hover {
   --btn-bg: var(--accent-deep);
   --btn-border: var(--accent-deep);
   --btn-fg: #fff;
+  --btn-shadow: 0 12px 26px rgba(20, 20, 20, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.theme-dark .btn--primary {
+  --btn-shadow: 0 8px 20px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .theme-dark .btn--primary:hover {
@@ -345,9 +505,39 @@ h3 {
   --btn-fg: var(--ink);
 }
 
+/* Glass secondary: light-on-dark uses white glass, light surfaces a dark-neutral edge. */
+.btn--secondary {
+  --btn-bg: rgba(255, 255, 255, 0.34);
+  --btn-border: rgba(21, 21, 21, 0.2);
+  --btn-shadow: 0 6px 16px rgba(20, 20, 20, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
 .btn--secondary:hover {
-  --btn-bg: var(--hover-tint);
+  --btn-bg: rgba(255, 255, 255, 0.58);
   --btn-border: var(--fg);
+  --btn-shadow: 0 10px 22px rgba(20, 20, 20, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.theme-dark .btn--secondary {
+  --btn-bg: rgba(255, 255, 255, 0.08);
+  --btn-border: rgba(255, 255, 255, 0.28);
+  --btn-shadow: 0 8px 20px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .btn--secondary:hover {
+  --btn-bg: rgba(255, 255, 255, 0.14);
+  --btn-border: rgba(255, 255, 255, 0.6);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn:not(.is-disabled):hover {
+    transform: translateY(-2px);
+  }
+
+  .btn:not(.is-disabled):active {
+    transform: translateY(0);
+    transition-duration: 0.12s;
+  }
 }
 
 .btn--block {
@@ -440,28 +630,33 @@ h3 {
    Header
    ------------------------------------------------------------------ */
 
+/* Floating glass bar — always frosted, a touch denser once the page scrolls. */
 .header {
   position: sticky;
   top: 0;
   z-index: 50;
   height: var(--header-h);
-  background: rgba(243, 239, 231, 0);
-  border-bottom: 1px solid transparent;
+  background: rgba(246, 243, 237, 0.44);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+  backdrop-filter: blur(18px) saturate(115%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 8px 30px rgba(15, 15, 15, 0),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transition:
     background-color 0.4s var(--ease),
-    border-color 0.4s var(--ease);
+    box-shadow 0.4s var(--ease);
 }
 
 .header.is-scrolled {
-  background: rgba(243, 239, 231, 0.78);
-  -webkit-backdrop-filter: saturate(1.2) blur(10px);
-  backdrop-filter: saturate(1.2) blur(10px);
-  border-bottom-color: var(--line);
+  box-shadow:
+    0 8px 30px rgba(15, 15, 15, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(21, 21, 21, 0.05);
 }
 
 .header.menu-open {
-  background: rgba(243, 239, 231, 0.78);
-  border-bottom-color: var(--line);
+  background: rgba(245, 242, 235, 0.86);
 }
 
 .header__inner {
@@ -561,8 +756,10 @@ h3 {
   gap: 9px;
   height: 30px;
   padding: 0 14px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid rgba(21, 21, 21, 0.16);
   border-radius: 999px;
+  background: rgba(255, 255, 255, 0.34);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -635,9 +832,11 @@ h3 {
   left: 0;
   right: 0;
   padding: 4px var(--pad) 24px;
-  background: var(--ivory);
-  border-bottom: 1px solid var(--line);
-  box-shadow: 0 30px 40px -30px rgba(21, 21, 21, 0.35);
+  /* The header is its backdrop root, so this panel relies on opacity, not blur. */
+  background: rgba(247, 244, 238, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 30px 50px -30px rgba(21, 21, 21, 0.28);
   opacity: 0;
   transform: translateY(-8px);
   transition:
@@ -785,10 +984,14 @@ h3 {
   display: block;
 }
 
+/* Glass information panel; bleeds outward so its text stays on the grid. */
 .hero__aside {
   display: grid;
   gap: 28px;
   align-content: end;
+  margin-inline: calc(-1 * var(--panel-bleed));
+  padding: clamp(22px, 2.4vw, 34px) max(var(--panel-bleed), 20px);
+  border-radius: clamp(18px, 1.8vw, 24px);
 }
 
 .hero__intro {
@@ -874,27 +1077,35 @@ h3 {
   }
 }
 
-/* Process steps — one 3-column grid, equal widths, subtle dividers */
+/* Process steps — three translucent glass cells, equal widths */
 .steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: var(--section-y-sm) 0 0;
+  gap: clamp(10px, 1.2vw, 16px);
+  margin: var(--section-y-sm) calc(-1 * var(--panel-bleed)) 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--line-strong);
 }
 
 .step {
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1));
   display: grid;
   align-content: start;
   gap: 6px;
-  padding: 24px clamp(20px, 3vw, 40px) 0;
-  border-left: 1px solid var(--line);
+  padding: clamp(20px, 2vw, 28px) max(var(--panel-bleed), 18px);
+  border-radius: 18px;
+  transition:
+    translate 0.45s var(--ease-out),
+    border-color 0.45s var(--ease),
+    box-shadow 0.45s var(--ease);
 }
 
-.step:first-child {
-  padding-left: 0;
-  border-left: 0;
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .step:hover {
+    translate: 0 -3px;
+    --glass-border: rgba(255, 255, 255, 0.75);
+    --glass-shadow: 0 18px 40px rgba(20, 18, 15, 0.08);
+  }
 }
 
 .step__num {
@@ -923,21 +1134,15 @@ h3 {
 @media (max-width: 639px) {
   .steps {
     grid-template-columns: minmax(0, 1fr);
-    border-top: 0;
+    gap: 10px;
   }
 
-  .step,
-  .step:first-child {
+  .step {
     grid-template-columns: 44px minmax(0, 1fr);
     column-gap: 12px;
     row-gap: 2px;
-    padding: 16px 0;
-    border-left: 0;
-    border-top: 1px solid var(--line);
-  }
-
-  .step:first-child {
-    border-top-color: var(--line-strong);
+    padding: 16px 18px;
+    border-radius: 16px;
   }
 
   .step__num {
@@ -978,21 +1183,35 @@ h3 {
   .js .hero__top[data-hero-in] {
     transition-delay: 0ms;
   }
+
+  /* Keep the entrance timing, add the hover elevation without its delay. */
+  .js .step[data-hero-in] {
+    transition:
+      opacity 0.75s var(--ease) calc(var(--d, 0) * 80ms + 420ms),
+      transform 0.9s var(--ease-out) calc(var(--d, 0) * 80ms + 420ms),
+      translate 0.45s var(--ease-out),
+      border-color 0.45s var(--ease),
+      box-shadow 0.45s var(--ease);
+  }
 }
 
 /* ------------------------------------------------------------------
    Concept sub-navigation
    ------------------------------------------------------------------ */
 
+/* Frosted project bar — same glass family as the header. */
 .subnav {
   position: sticky;
   top: var(--header-h);
   z-index: 40;
   height: var(--subnav-h);
-  background: rgba(243, 239, 231, 0.78);
-  -webkit-backdrop-filter: saturate(1.2) blur(10px);
-  backdrop-filter: saturate(1.2) blur(10px);
-  border-block: 1px solid var(--line);
+  background: rgba(246, 243, 237, 0.42);
+  -webkit-backdrop-filter: blur(16px) saturate(115%);
+  backdrop-filter: blur(16px) saturate(115%);
+  border-block: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 10px 30px rgba(20, 20, 20, 0.04),
+    inset 0 -1px 0 rgba(21, 21, 21, 0.05);
 }
 
 .subnav__inner {
@@ -1146,9 +1365,10 @@ h3 {
    Concepts intro
    ------------------------------------------------------------------ */
 
+/* Open typography on the background — no surface. */
 .concepts-intro {
-  background: rgba(243, 239, 231, 0.78);
   padding-top: var(--section-y);
+  padding-bottom: clamp(20px, 3vw, 40px);
 }
 
 .concepts-intro__inner {
@@ -1185,19 +1405,26 @@ h3 {
    Concept showcase
    ------------------------------------------------------------------ */
 
+/* Concepts sit on the shared translucent .glass-section surface. */
 .concept {
-  --surface: var(--surface-light);
-  background: var(--surface);
+  --section-bg: rgba(247, 244, 238, 0.26);
+  --section-blur: 8px;
   color: var(--fg);
   padding-block: var(--section-y);
 }
 
-.concept.theme-dark {
-  --surface: var(--surface-dark);
+.concept--reverse {
+  --section-bg: rgba(247, 244, 238, 0.34);
+  --section-blur: 10px;
 }
 
-.concepts-intro + .concept {
-  padding-top: var(--block);
+/* Only if a concept is configured with theme: 'dark' */
+.concept.theme-dark {
+  --section-bg: rgba(15, 15, 14, 0.88);
+  --section-blur: 12px;
+  --section-border-top: rgba(255, 255, 255, 0.08);
+  --section-border-bottom: rgba(255, 255, 255, 0.06);
+  --section-fallback: rgba(20, 20, 19, 0.95);
 }
 
 .concept__grid {
@@ -1413,37 +1640,68 @@ h3 {
 .traits li {
   padding: 6px 11px;
   border: 1px solid var(--line-strong);
-  border-radius: 2px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-/* Browser-frame preview */
+.theme-dark .traits li {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Floating browser window — glass frame, inset screen, very gentle 3D.
+   --rx / --ry come from the pointer (main.js, desktop only). */
+.concept__preview {
+  perspective: 1200px;
+}
+
 .preview {
+  --rx: 0deg;
+  --ry: 0deg;
+  --lift: 0px;
+  --scale: 1;
+  --frame-ring: 0 0 0 0 transparent;
+  --frame-depth: 0 30px 80px rgba(20, 18, 15, 0.16), 0 8px 24px rgba(20, 18, 15, 0.08);
+  --frame-highlight: rgba(255, 255, 255, 0.55);
   position: relative;
   display: block;
-  overflow: hidden;
-  border-radius: 8px;
-  background: var(--placeholder);
+  padding: 0 10px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: var(--frame-radius);
+  /* No filters here: the section layer behind already frosts, and the
+     screenshot inside is never blurred or faded. */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.24));
   box-shadow:
-    0 0 0 1px var(--line),
-    0 40px 80px -40px rgba(21, 21, 21, 0.45);
-  transition: box-shadow 0.6s var(--ease);
+    var(--frame-ring),
+    var(--frame-depth),
+    inset 0 1px 0 var(--frame-highlight);
+  transform: translate3d(0, var(--lift), 0) rotateX(var(--rx)) rotateY(var(--ry)) scale(var(--scale));
+  transition:
+    transform 0.4s var(--ease-out),
+    box-shadow 0.6s var(--ease);
 }
 
 .theme-dark .preview {
-  box-shadow:
-    0 0 0 1px var(--line),
-    0 40px 90px -40px rgba(0, 0, 0, 0.9);
+  --frame-depth: 0 30px 80px rgba(0, 0, 0, 0.32), 0 8px 24px rgba(0, 0, 0, 0.18);
+  --frame-highlight: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
 }
 
 .concept.is-selected .preview {
-  box-shadow:
-    0 0 0 1px var(--accent),
-    0 0 0 7px rgba(184, 110, 69, 0.14),
-    0 40px 80px -40px rgba(21, 21, 21, 0.45);
+  --frame-ring: 0 0 0 1px var(--accent), 0 0 0 6px rgba(184, 110, 69, 0.16);
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .preview:hover {
+    --lift: -4px;
+    --scale: 1.01;
+  }
 }
 
 .preview__bar {
@@ -1451,10 +1709,8 @@ h3 {
   grid-template-columns: 1fr minmax(0, auto) 1fr;
   align-items: center;
   gap: 16px;
-  height: 40px;
-  padding: 0 16px;
-  background: var(--frame-bar);
-  border-bottom: 1px solid var(--line);
+  height: 42px;
+  padding: 0 8px;
 }
 
 .preview__dots {
@@ -1466,7 +1722,13 @@ h3 {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--line-strong);
+  background: rgba(21, 21, 21, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.theme-dark .preview__dots i {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
 }
 
 .preview__url {
@@ -1475,8 +1737,9 @@ h3 {
   width: 100%;
   height: 24px;
   padding: 0 14px;
-  border-radius: 4px;
+  border-radius: 8px;
   background: var(--frame-url);
+  box-shadow: inset 0 0 0 1px rgba(21, 21, 21, 0.05);
   font-size: 11.5px;
   line-height: 24px;
   color: var(--fg-muted);
@@ -1512,6 +1775,9 @@ h3 {
   display: block;
   aspect-ratio: 16 / 10;
   overflow: hidden;
+  border-radius: max(8px, calc(var(--frame-radius) - 10px));
+  background: var(--placeholder);
+  box-shadow: 0 0 0 1px rgba(21, 21, 21, 0.08);
 }
 
 @media (max-width: 640px) {
@@ -1519,9 +1785,13 @@ h3 {
     aspect-ratio: 4 / 3;
   }
 
+  .preview {
+    padding: 0 6px 6px;
+  }
+
   .preview__bar {
     height: 34px;
-    padding: 0 12px;
+    padding: 0 6px;
     gap: 10px;
   }
 
@@ -1532,10 +1802,6 @@ h3 {
 
   .preview__open-text {
     display: none;
-  }
-
-  .preview {
-    border-radius: 6px;
   }
 }
 
@@ -1757,9 +2023,10 @@ h3 {
   }
 
   .js [data-reveal='clip'] .preview {
-    clip-path: inset(0 0 100% 0 round 8px);
+    clip-path: inset(0 0 100% 0 round var(--frame-radius));
     transition:
       clip-path 1.3s var(--ease-out),
+      transform 0.4s var(--ease-out),
       box-shadow 0.6s var(--ease);
   }
 
@@ -1772,8 +2039,9 @@ h3 {
     transition: opacity 0.8s var(--ease) 0.6s;
   }
 
+  /* Ends outside the frame so the floating shadow is never clipped. */
   .js [data-reveal='clip'].is-in .preview {
-    clip-path: inset(0 0 0 0 round 8px);
+    clip-path: inset(-120px -120px -160px -120px round var(--frame-radius));
   }
 
   .js [data-reveal='clip'].is-in .media__img {
@@ -1790,9 +2058,10 @@ h3 {
    ------------------------------------------------------------------ */
 
 .review {
-  background: var(--surface-neutral);
-  padding-block: var(--section-y);
+  --section-bg: rgba(246, 243, 237, 0.34);
+  --section-blur: 12px;
   --placeholder: #ddd6ca;
+  padding-block: var(--section-y);
 }
 
 .review__head {
@@ -1859,8 +2128,24 @@ h3 {
   display: block;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px var(--line);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.55),
+    0 14px 30px rgba(20, 18, 15, 0.12),
+    0 3px 8px rgba(20, 18, 15, 0.06);
+  transition:
+    transform 0.45s var(--ease-out),
+    box-shadow 0.45s var(--ease);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .compare__item:hover .compare__thumb {
+    transform: translateY(-3px);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.7),
+      0 20px 40px rgba(20, 18, 15, 0.15),
+      0 4px 10px rgba(20, 18, 15, 0.07);
+  }
 }
 
 .compare__thumb .media__img {
@@ -1995,10 +2280,42 @@ h3 {
    Final CTA — same split grid as the hero
    ------------------------------------------------------------------ */
 
+/* Deep translucent charcoal glass layer */
 .final {
-  background: var(--surface-dark);
+  --section-bg: rgba(15, 15, 14, 0.88);
+  --section-blur: 12px;
+  --section-border-top: rgba(255, 255, 255, 0.08);
+  --section-border-bottom: rgba(255, 255, 255, 0.06);
+  --section-fallback: rgba(20, 20, 19, 0.95);
   color: var(--fg);
   padding-block: var(--section-y);
+}
+
+.final__inner {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Warm glow behind the selected concept name */
+.final__inner::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -12% 0;
+  background: radial-gradient(ellipse 42% 60% at 24% 64%, rgba(221, 157, 116, 0.2), rgba(221, 157, 116, 0) 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s var(--ease);
+}
+
+.has-selection .final__inner::after {
+  opacity: 1;
+}
+
+@media (max-width: 1023px) {
+  .final__inner::after {
+    background: radial-gradient(ellipse 70% 40% at 30% 34%, rgba(221, 157, 116, 0.2), rgba(221, 157, 116, 0) 70%);
+  }
 }
 
 .final .eyebrow {
@@ -2013,7 +2330,9 @@ h3 {
 }
 
 .final__title em {
+  font-style: normal;
   color: var(--accent-soft);
+  text-shadow: 0 0 42px rgba(221, 157, 116, 0.32);
 }
 
 .final__text {
@@ -2081,7 +2400,7 @@ h3 {
    ------------------------------------------------------------------ */
 
 .footer {
-  background: var(--surface-dark);
+  --section-bg: rgba(246, 243, 237, 0.3);
   color: var(--fg-muted);
   font-size: 13px;
 }
@@ -2092,7 +2411,6 @@ h3 {
   align-items: center;
   gap: 16px 40px;
   padding-block: 32px;
-  border-top: 1px solid var(--line);
 }
 
 .footer__brand {
@@ -2188,10 +2506,15 @@ h3 {
   max-height: calc(100dvh - 40px);
   overflow: auto;
   overscroll-behavior: contain;
-  background: var(--paper);
+  background: linear-gradient(135deg, rgba(251, 249, 245, 0.94), rgba(246, 242, 235, 0.88));
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
+  backdrop-filter: blur(24px) saturate(135%);
   color: var(--ink);
-  border-radius: 6px;
-  box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 22px;
+  box-shadow:
+    0 50px 100px -30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
   opacity: 0;
   transform: translateY(14px) scale(0.97);
   transition:
@@ -2280,8 +2603,9 @@ h3 {
   margin-bottom: 26px;
   padding: 16px 18px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--ivory);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
   font-size: 14px;
   white-space: pre-line;
 }
@@ -2342,11 +2666,16 @@ h3 {
   align-items: center;
   gap: 12px;
   padding: 13px 18px 13px 14px;
-  border-radius: var(--radius);
-  background: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(21, 21, 20, 0.88);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   color: var(--ivory);
   font-size: 14px;
-  box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 20px 40px -16px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   opacity: 0;
   transform: translateY(14px);
   transition:
@@ -2375,6 +2704,61 @@ h3 {
 }
 
 /* ------------------------------------------------------------------
+   Depth tuning — tablet and mobile
+   Less blur and lighter shadows. On phones no more than 1–2 live
+   backdrop-filter layers overlap (section layer + header/project bar);
+   the small step cells use opacity instead.
+   ------------------------------------------------------------------ */
+
+@media (max-width: 1023px) {
+  .glass-strong {
+    --glass-blur: 14px;
+  }
+
+  .preview {
+    --frame-depth: 0 22px 56px rgba(20, 18, 15, 0.14), 0 6px 18px rgba(20, 18, 15, 0.07);
+  }
+
+  .theme-dark .preview {
+    --frame-depth: 0 22px 56px rgba(0, 0, 0, 0.28), 0 6px 18px rgba(0, 0, 0, 0.16);
+  }
+}
+
+@media (max-width: 699px) {
+  .header,
+  .subnav {
+    -webkit-backdrop-filter: blur(12px) saturate(115%);
+    backdrop-filter: blur(12px) saturate(115%);
+  }
+
+  .glass-strong {
+    --glass-blur: 10px;
+  }
+
+  .site-content .glass-section {
+    --section-blur: 8px;
+  }
+
+  .glass-strong {
+    --glass-shadow: 0 12px 32px rgba(20, 18, 15, 0.07);
+  }
+
+  .step {
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.28));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .preview {
+    --frame-depth: 0 16px 36px rgba(20, 18, 15, 0.13), 0 4px 12px rgba(20, 18, 15, 0.06);
+  }
+
+  .theme-dark .preview {
+    --frame-depth: 0 16px 36px rgba(0, 0, 0, 0.26), 0 4px 12px rgba(0, 0, 0, 0.14);
+  }
+}
+
+/* ------------------------------------------------------------------
    Reduced motion
    ------------------------------------------------------------------ */
 
@@ -2387,5 +2771,19 @@ h3 {
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Background holds still; no preview tilt — only the simple fades remain. */
+  .global-background-image {
+    animation: none;
+    transform: scale(1.03);
+  }
+
+  .global-background-light {
+    animation: none;
+  }
+
+  .preview {
+    transform: none !important;
   }
 }
