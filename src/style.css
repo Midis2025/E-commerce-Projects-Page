@@ -10,7 +10,8 @@
   --neutral: #e9e3d8;
   --ink: #151515;
   --charcoal: #141414;
-  --muted: #5d5952;
+  /* Deep enough to keep 4.5:1 over the image's shadows now that sections are open */
+  --muted: #46423c;
   --accent: #b86e45;
   --accent-deep: #8c4a28;
   --accent-soft: #dd9d74;
@@ -51,7 +52,8 @@
   --fg-muted: var(--muted);
   --line: rgba(21, 21, 21, 0.13);
   --line-strong: rgba(21, 21, 21, 0.28);
-  --accent-text: var(--accent-deep);
+  /* Small accent text sits on the open background — keep it at 4.5:1 */
+  --accent-text: #733a1c;
   --hover-tint: rgba(21, 21, 21, 0.045);
   --frame-bar: #ebe6dd;
   --frame-url: rgba(255, 255, 255, 0.72);
@@ -327,7 +329,7 @@ h3 {
 .global-background-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(244, 240, 232, 0.68), rgba(244, 240, 232, 0.58));
+  background: linear-gradient(135deg, rgba(244, 240, 232, 0.56), rgba(244, 240, 232, 0.48));
 }
 
 .global-background-light {
@@ -381,27 +383,18 @@ h3 {
   }
 
   .global-background-overlay {
-    background: linear-gradient(135deg, rgba(244, 240, 232, 0.74), rgba(244, 240, 232, 0.64));
+    background: linear-gradient(135deg, rgba(244, 240, 232, 0.62), rgba(244, 240, 232, 0.52));
   }
 }
 
 /* ------------------------------------------------------------------
    Glass surface system
-   .glass-section  ONE shared translucent section surface. Sections only
-                   set --section-bg / --section-blur, never a solid
-                   colour, so the single fixed image stays visible.
-   .glass          small bordered panels, with token classes:
+   Sections have no surface or dividers of their own: the page reads as
+   one continuous layer over the fixed background. Glass is used only for
+   the sticky header / project bar and small panels (.glass):
      .glass-soft    process step cells
      .glass-strong  panels that carry body copy (hero information panel)
    ------------------------------------------------------------------ */
-
-.glass-section {
-  background: var(--section-bg, rgba(248, 245, 239, 0.3));
-  -webkit-backdrop-filter: blur(var(--section-blur, 10px)) saturate(105%);
-  backdrop-filter: blur(var(--section-blur, 10px)) saturate(105%);
-  border-top: 1px solid var(--section-border-top, rgba(255, 255, 255, 0.18));
-  border-bottom: 1px solid var(--section-border-bottom, rgba(255, 255, 255, 0.14));
-}
 
 .glass-soft {
   --glass-bg: rgba(247, 244, 238, 0.4);
@@ -437,10 +430,6 @@ h3 {
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {
     background-color: var(--glass-fallback);
-  }
-
-  .glass-section {
-    background-color: var(--section-fallback, rgba(247, 244, 238, 0.72));
   }
 }
 
@@ -636,7 +625,8 @@ h3 {
   top: 0;
   z-index: 50;
   height: var(--header-h);
-  background: rgba(246, 243, 237, 0.44);
+  /* Dense enough to keep nav text readable when dark previews scroll underneath */
+  background: rgba(246, 243, 237, 0.76);
   -webkit-backdrop-filter: blur(18px) saturate(115%);
   backdrop-filter: blur(18px) saturate(115%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -1205,7 +1195,7 @@ h3 {
   top: var(--header-h);
   z-index: 40;
   height: var(--subnav-h);
-  background: rgba(246, 243, 237, 0.42);
+  background: rgba(246, 243, 237, 0.76);
   -webkit-backdrop-filter: blur(16px) saturate(115%);
   backdrop-filter: blur(16px) saturate(115%);
   border-block: 1px solid rgba(255, 255, 255, 0.3);
@@ -1405,26 +1395,21 @@ h3 {
    Concept showcase
    ------------------------------------------------------------------ */
 
-/* Concepts sit on the shared translucent .glass-section surface. */
+/* No surface or dividers — concepts flow over the shared background.
+   Top padding only, so the space between sections is never doubled. */
 .concept {
-  --section-bg: rgba(247, 244, 238, 0.26);
-  --section-blur: 8px;
   color: var(--fg);
-  padding-block: var(--section-y);
+  padding-top: var(--section-y);
 }
 
-.concept--reverse {
-  --section-bg: rgba(247, 244, 238, 0.34);
-  --section-blur: 10px;
+.concepts-intro + .concept {
+  padding-top: var(--block);
 }
 
-/* Only if a concept is configured with theme: 'dark' */
+/* Only if a concept is configured with theme: 'dark' (light text needs a ground) */
 .concept.theme-dark {
-  --section-bg: rgba(15, 15, 14, 0.88);
-  --section-blur: 12px;
-  --section-border-top: rgba(255, 255, 255, 0.08);
-  --section-border-bottom: rgba(255, 255, 255, 0.06);
-  --section-fallback: rgba(20, 20, 19, 0.95);
+  background: rgba(15, 15, 14, 0.88);
+  padding-bottom: var(--section-y);
 }
 
 .concept__grid {
@@ -1888,7 +1873,8 @@ h3 {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--fg-muted);
+  /* Sits in the preview frame's shadow, so it uses the full text colour */
+  color: var(--fg);
 }
 
 .concept__caption-hint {
@@ -2058,10 +2044,8 @@ h3 {
    ------------------------------------------------------------------ */
 
 .review {
-  --section-bg: rgba(246, 243, 237, 0.34);
-  --section-blur: 12px;
   --placeholder: #ddd6ca;
-  padding-block: var(--section-y);
+  padding-top: var(--section-y);
 }
 
 .review__head {
@@ -2280,13 +2264,8 @@ h3 {
    Final CTA — same split grid as the hero
    ------------------------------------------------------------------ */
 
-/* Deep translucent charcoal glass layer */
+/* Same open layer as the rest of the page — no band, no divider */
 .final {
-  --section-bg: rgba(15, 15, 14, 0.88);
-  --section-blur: 12px;
-  --section-border-top: rgba(255, 255, 255, 0.08);
-  --section-border-bottom: rgba(255, 255, 255, 0.06);
-  --section-fallback: rgba(20, 20, 19, 0.95);
   color: var(--fg);
   padding-block: var(--section-y);
 }
@@ -2331,8 +2310,8 @@ h3 {
 
 .final__title em {
   font-style: normal;
-  color: var(--accent-soft);
-  text-shadow: 0 0 42px rgba(221, 157, 116, 0.32);
+  color: var(--accent-text);
+  text-shadow: 0 0 40px rgba(184, 110, 69, 0.22);
 }
 
 .final__text {
@@ -2400,7 +2379,6 @@ h3 {
    ------------------------------------------------------------------ */
 
 .footer {
-  --section-bg: rgba(246, 243, 237, 0.3);
   color: var(--fg-muted);
   font-size: 13px;
 }
@@ -2733,10 +2711,6 @@ h3 {
 
   .glass-strong {
     --glass-blur: 10px;
-  }
-
-  .site-content .glass-section {
-    --section-blur: 8px;
   }
 
   .glass-strong {

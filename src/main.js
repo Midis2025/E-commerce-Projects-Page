@@ -236,14 +236,14 @@ function renderPreview(concept) {
 
 function renderConcept(concept, index) {
   const reversed = index % 2 === 1;
-  // Both concepts sit on translucent light glass so the fixed background stays
-  // visible; the second is a touch denser. A config `theme: 'dark'` still works.
+  // Both concepts sit directly on the shared background (light theme).
+  // A config `theme: 'dark'` still works.
   const theme = concept.theme || 'light';
   const traits = (concept.traits || []).filter(Boolean);
   const pages = (concept.pages || []).filter((p) => p && p.name);
 
   return `
-  <section class="concept ${reversed ? 'concept--reverse' : ''} theme-${theme} glass-section" id="${esc(concept.id)}"
+  <section class="concept ${reversed ? 'concept--reverse' : ''} theme-${theme}" id="${esc(concept.id)}"
     data-concept="${esc(concept.id)}" aria-labelledby="${esc(concept.id)}-title">
     <div class="page-container concept__grid">
       <header class="concept__head">
@@ -313,7 +313,7 @@ function renderReview() {
     .join('');
 
   return `
-  <section class="review glass-section" id="review" aria-labelledby="review-title">
+  <section class="review" id="review" aria-labelledby="review-title">
     <div class="page-container">
       <div class="review__head">
         <p class="eyebrow" data-reveal>${esc(review.eyebrow)}</p>
@@ -328,7 +328,7 @@ function renderReview() {
 function renderFinal() {
   const { finalCta } = site;
   return `
-  <section class="final theme-dark glass-section" aria-labelledby="final-title">
+  <section class="final" aria-labelledby="final-title">
     <div class="page-container final__inner">
       <p class="eyebrow" data-reveal>${esc(finalCta.eyebrow)}</p>
       <h2 class="final__title" id="final-title" data-reveal data-final-title></h2>
@@ -349,7 +349,7 @@ function renderFinal() {
 function renderFooter() {
   const { brand, footer } = site;
   return `
-  <footer class="footer glass-section" data-inertable>
+  <footer class="footer" data-inertable>
     <div class="page-container footer__inner">
       <p class="footer__brand"><span class="brand__glyph" aria-hidden="true"></span>${esc(brand.mark)}</p>
       <p class="footer__note">${esc(footer.note)}${brand.project ? ` <span>${esc(brand.project)}</span>` : ''}</p>
