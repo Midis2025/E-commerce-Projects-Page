@@ -38,6 +38,7 @@ import {
   setupReveal,
   renderConceptMenu,
   setupConceptMenu,
+  brandLogo,
 } from './shared.js';
 
 const concept = conceptById(document.documentElement.dataset.concept);
@@ -274,7 +275,7 @@ function renderHeader() {
   <header class="cp-header" data-header data-inertable>
     <div class="page-container cp-header__inner">
       <a class="brand" href="/">
-        <span class="brand__glyph" aria-hidden="true"></span>
+        ${brandLogo()}
         <span class="brand__mark">${esc(site.brand.mark)}</span>
       </a>
       <nav class="cp-nav" aria-label="Design review">
@@ -526,7 +527,7 @@ function renderFooter() {
   return `
   <footer class="footer" data-inertable>
     <div class="page-container footer__inner">
-      <p class="footer__brand"><span class="brand__glyph" aria-hidden="true"></span>${esc(site.brand.mark)}</p>
+      <p class="footer__brand">${brandLogo()}${esc(site.brand.mark)}</p>
       <p class="footer__note">Concept ${esc(concept.number)} — ${esc(concept.name)}</p>
       <p class="footer__tagline">${esc(site.footer.tagline)}</p>
       <a class="footer__top" href="#main">Back to top ${icon.up}</a>

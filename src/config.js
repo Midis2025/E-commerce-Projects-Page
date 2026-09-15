@@ -25,11 +25,13 @@
 
 export const site = {
   /** Browser tab title. */
-  title: 'Design Review',
+  title: 'Midis Portfolio',
 
   brand: {
     /** Small wordmark, top-left. */
-    mark: 'Design Review',
+    mark: 'Midis Portfolio',
+    /** Logo mark shown before the wordmark (header + footer). Remove to show the default square glyph. */
+    logo: { src: '/images/midis-icon.png', width: 128, height: 128 },
     /** Optional project name shown next to the mark (desktop). Leave empty to hide. */
     project: '',
   },
@@ -55,9 +57,9 @@ export const site = {
   hero: {
     eyebrow: 'Website Design Review',
     /** Each item starts on a new line and wraps naturally. All lines share one style. */
-    heading: [{ text: 'Eight directions.' }, { text: 'One final experience.' }],
+    heading: [{ text: 'Showcasing our best' }, { text: 'Works & impact' }],
     intro:
-      'Explore all eight proposed website concepts below. Review the layouts, interactions and individual page experiences, then choose the direction that best represents the brand.',
+      'A curated selection of our most impactful projects, where strategy meets creativity to drive measurable results.',
     cta: 'Begin the review',
     /** Small key/value details beside the intro. Remove any you don't need. */
     meta: [

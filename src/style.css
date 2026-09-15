@@ -687,6 +687,15 @@ h3 {
   background: var(--accent);
 }
 
+/* Logo image (site.brand.logo) — takes the square glyph's place in the same brand row */
+.brand__logo {
+  display: block;
+  flex: none;
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+}
+
 .brand__divider {
   font-weight: 300;
   color: var(--fg-muted);

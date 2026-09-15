@@ -56,6 +56,14 @@ export const conceptPath = (concept) => `/concepts/${encodeURIComponent(concept.
 export const svg = (paths, size = 16) =>
   `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 16 16" aria-hidden="true" focusable="false">${paths}</svg>`;
 
+/** Site logo mark (`site.brand.logo`); falls back to the original square glyph. Decorative — the wordmark beside it names the site. */
+export const brandLogo = () => {
+  const logo = site.brand?.logo;
+  return logo?.src
+    ? `<img class="brand__logo" src="${esc(logo.src)}" alt="" width="${logo.width || 64}" height="${logo.height || 64}" decoding="async" />`
+    : '<span class="brand__glyph" aria-hidden="true"></span>';
+};
+
 export const icon = {
   external: svg('<path d="M4.5 11.5l7-7M5.75 4.5h5.75v5.75" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
   down: svg('<path d="M8 2.5v11M3.75 9.25L8 13.5l4.25-4.25" fill="none" stroke="currentColor" stroke-width="1.35"/>'),

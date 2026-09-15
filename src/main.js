@@ -33,6 +33,7 @@ import {
   renderConceptMenu,
   setupConceptMenu,
   setConceptMenuCurrent,
+  brandLogo,
 } from './shared.js';
 
 /* ------------------------------------------------------------------
@@ -56,7 +57,7 @@ function renderHeader() {
   <header class="header" data-header data-inertable>
     <div class="page-container header__inner">
       <a class="brand" href="#project">
-        <span class="brand__glyph" aria-hidden="true"></span>
+        ${brandLogo()}
         <span class="brand__mark">${esc(brand.mark)}</span>
         ${brand.project ? `<span class="brand__divider" aria-hidden="true">/</span><span class="brand__project">${esc(brand.project)}</span>` : ''}
       </a>
@@ -278,7 +279,7 @@ function renderFooter() {
   return `
   <footer class="footer" data-inertable>
     <div class="page-container footer__inner">
-      <p class="footer__brand"><span class="brand__glyph" aria-hidden="true"></span>${esc(brand.mark)}</p>
+      <p class="footer__brand">${brandLogo()}${esc(brand.mark)}</p>
       <p class="footer__note">${esc(footer.note)}${brand.project ? ` <span>${esc(brand.project)}</span>` : ''}</p>
       <p class="footer__tagline">${esc(footer.tagline)}</p>
       <a class="footer__top" href="#project">Back to top ${icon.up}</a>
