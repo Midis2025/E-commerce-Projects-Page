@@ -1309,6 +1309,25 @@ h3 {
   color: var(--accent-text);
 }
 
+/* Four concepts + Review: drop the "Selected direction" label first, then
+   show numbers only for the sections you're not on (names stay for screen readers). */
+@media (max-width: 1439px) {
+  .subnav__selection-label {
+    display: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1179px) {
+  .subnav__link:not([aria-current='true']) .subnav__name:not(.subnav__name--always) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
 @media (max-width: 760px) {
   .subnav__selection {
     display: none;
@@ -1341,13 +1360,19 @@ h3 {
     text-transform: uppercase;
   }
 
-  .subnav__num,
+  /* Phones: a compact numbered navigator (01 02 03 04 Review) */
   .subnav__name:not(.subnav__name--always) {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
-  .subnav__short {
-    display: inline;
+  .subnav__num {
+    font-size: 12px;
+    color: inherit;
   }
 }
 

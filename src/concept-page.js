@@ -40,7 +40,11 @@ import {
 
 const concept = conceptById(document.documentElement.dataset.concept);
 const detail = concept ? conceptDetails[concept.id] : null;
-const theme = detail?.theme === 'samriti' ? 'samriti' : 'alinkriti';
+const THEMES = ['alinkriti', 'samriti', 'country', 'gulf'];
+const theme = THEMES.includes(detail?.theme) ? detail.theme : 'alinkriti';
+
+/* Phones get the capture instead of a live iframe: a small nested frame traps touch scrolling. */
+const phone = window.matchMedia('(max-width: 699px)');
 
 /* ------------------------------------------------------------------
  * Atmosphere — abstract, fixed, behind everything (decorative only)
@@ -99,6 +103,90 @@ const ATMOSPHERE = {
     </div>
     <div class="cp-atmos__layer cp-atmos__plane cp-atmos__plane--a" style="--depth:0.09"><span></span></div>
     <div class="cp-atmos__layer cp-atmos__plane cp-atmos__plane--b" style="--depth:0.12"><span></span></div>`,
+
+  // Soft organic gradient fields, abstract leaf outlines and layered paper sheets.
+  country: `
+    <div class="cp-atmos__base"></div>
+    <div class="cp-atmos__grain"></div>
+    <div class="cp-atmos__layer cp-atmos__blob cp-atmos__blob--a" style="--depth:0.04">
+      <svg viewBox="0 0 600 600">
+        <defs>
+          <radialGradient id="ck-euc" cx="45%" cy="45%" r="60%">
+            <stop offset="0" stop-color="#9DB8A2" stop-opacity="0.55" />
+            <stop offset="1" stop-color="#9DB8A2" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <path d="M421 72c73 45 132 128 121 212-11 85-92 170-186 214S154 537 94 476 4 318 36 222 142 70 234 45s114-18 187 27z" fill="url(#ck-euc)" />
+      </svg>
+    </div>
+    <div class="cp-atmos__layer cp-atmos__blob cp-atmos__blob--b" style="--depth:0.07">
+      <svg viewBox="0 0 600 600">
+        <defs>
+          <radialGradient id="ck-sun" cx="50%" cy="50%" r="55%">
+            <stop offset="0" stop-color="#E7BE62" stop-opacity="0.42" />
+            <stop offset="1" stop-color="#E7BE62" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <path d="M312 40c96 10 206 76 234 170s-26 208-116 268-214 76-300 24S12 356 36 258 216 30 312 40z" fill="url(#ck-sun)" />
+      </svg>
+    </div>
+    <div class="cp-atmos__layer cp-atmos__blob cp-atmos__blob--c" style="--depth:0.05">
+      <svg viewBox="0 0 600 600">
+        <defs>
+          <radialGradient id="ck-sky" cx="50%" cy="50%" r="55%">
+            <stop offset="0" stop-color="#9FC6DA" stop-opacity="0.4" />
+            <stop offset="1" stop-color="#9FC6DA" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <path d="M300 30c110 0 250 90 260 210S460 540 330 566 60 520 38 380 190 30 300 30z" fill="url(#ck-sky)" />
+      </svg>
+    </div>
+    <div class="cp-atmos__layer cp-atmos__leaves" style="--depth:0.09">
+      <svg viewBox="0 0 400 420" fill="none">
+        <g stroke="#4F7A4E" stroke-linecap="round">
+          <path d="M200 60c74 62 84 168 0 250-84-82-74-188 0-250z" stroke-width="1.2" opacity="0.4" />
+          <path d="M200 84v216" stroke-width="0.8" opacity="0.28" />
+          <g transform="rotate(40 200 330)">
+            <path d="M200 120c56 48 64 128 0 190-64-62-56-142 0-190z" stroke-width="1" opacity="0.32" />
+            <path d="M200 140v162" stroke-width="0.7" opacity="0.22" />
+          </g>
+          <g transform="rotate(-36 200 330)">
+            <path d="M200 150c46 40 52 104 0 156-52-52-46-116 0-156z" stroke-width="1" opacity="0.28" />
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="cp-atmos__layer cp-atmos__sheet cp-atmos__sheet--a" style="--depth:0.1"><span></span></div>
+    <div class="cp-atmos__layer cp-atmos__sheet cp-atmos__sheet--b" style="--depth:0.13"><span></span></div>`,
+
+  // Architectural grid, fine gold routes between abstract regional nodes, a sheet of glass.
+  gulf: `
+    <div class="cp-atmos__base"></div>
+    <div class="cp-atmos__grid"></div>
+    <div class="cp-atmos__layer cp-atmos__routes" style="--depth:0.05">
+      <svg viewBox="0 0 900 600" fill="none">
+        <defs>
+          <linearGradient id="gc-gold" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#B8955A" stop-opacity="0" />
+            <stop offset="0.5" stop-color="#B8955A" />
+            <stop offset="1" stop-color="#B8955A" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M40 430C250 170 620 150 870 300" stroke="url(#gc-gold)" stroke-width="1" opacity="0.7" />
+        <path d="M110 540C340 300 610 280 840 420" stroke="url(#gc-gold)" stroke-width="0.8" opacity="0.5" />
+        <path d="M300 330L420 300L560 250L640 280L700 380L520 360Z" stroke="#0F1B2D" stroke-width="0.7" opacity="0.14" />
+        <path d="M420 300L520 360M560 250L520 360M640 280L520 360" stroke="#0F1B2D" stroke-width="0.6" opacity="0.1" />
+        <g fill="#B8955A">
+          <circle cx="300" cy="330" r="3" opacity="0.7" /><circle cx="420" cy="300" r="3.5" opacity="0.8" />
+          <circle cx="560" cy="250" r="3" opacity="0.7" /><circle cx="640" cy="280" r="3" opacity="0.7" />
+          <circle cx="700" cy="380" r="3" opacity="0.7" /><circle cx="520" cy="360" r="4" opacity="0.9" />
+        </g>
+        <g stroke="#B8955A" stroke-width="0.8" opacity="0.3">
+          <circle cx="520" cy="360" r="14" /><circle cx="420" cy="300" r="11" />
+        </g>
+      </svg>
+    </div>
+    <div class="cp-atmos__layer cp-atmos__pane" style="--depth:0.03"><span></span></div>`,
 };
 
 /* ------------------------------------------------------------------
@@ -111,7 +199,6 @@ function renderHeader() {
       (c) => `<li><a class="cp-nav__link" href="${esc(conceptPath(c))}" data-cp-nav="${esc(c.id)}" ${c.id === concept.id ? 'aria-current="page"' : ''}>
         <span class="cp-nav__num">${esc(c.number)}</span>
         <span class="cp-nav__name">${esc(c.name)}</span>
-        <span class="cp-nav__short">Concept ${esc(c.number)}</span>
         <span class="cp-nav__dot" aria-hidden="true"></span>
         <span class="sr-only" data-cp-nav-state></span>
       </a></li>`,
@@ -186,10 +273,18 @@ function renderHero() {
  * otherwise a scrollable full-page capture + open-live-site actions.
  * ------------------------------------------------------------------ */
 
-function captureScreen() {
-  const cap = detail.capture?.src
-    ? detail.capture
-    : { src: concept.previewImage, width: 1440, height: 2700, alt: `${concept.name} homepage` };
+const captureData = () =>
+  detail.capture?.src ? detail.capture : { src: concept.previewImage, width: 1440, height: 2700, alt: `${concept.name} homepage` };
+
+/* Live iframe only when the site permits framing and the screen is big enough to browse it. */
+const embedLive = () => Boolean(safeUrl(concept.websiteUrl) && detail.embeddable && !phone.matches);
+
+const captureNote = () =>
+  detail.embeddable
+    ? '<strong>Showing a capture on this screen.</strong> The live site is too small to browse comfortably in a frame here, so you’re viewing a capture of its homepage. Open the full website to browse it live.'
+    : '<strong>Live embedding unavailable.</strong> This store doesn’t allow itself to be shown inside other pages, so you’re viewing a full-page capture of its homepage. Open the full website to browse it live.';
+
+function captureScreen(cap = captureData()) {
   return `
     <div class="lwf__scroll" data-lwf-scroll tabindex="0" role="region" aria-label="${esc(cap.alt)} — scroll to explore">
       <img class="lwf__img" src="${esc(cap.src)}" alt="${esc(cap.alt)}" width="${cap.width}" height="${cap.height}" decoding="async" data-lwf-img />
@@ -201,14 +296,17 @@ function captureScreen() {
 
 function liveWebsiteFrame() {
   const url = safeUrl(concept.websiteUrl);
-  const live = Boolean(url && detail.embeddable);
+  const live = embedLive();
+  const cap = captureData();
+  // A capture shorter than it is wide (e.g. a single-screen homepage) shows whole, never scrolls.
+  const short = cap.height / cap.width < 1.1;
   const screen = live
     ? `<div class="lwf__loading" data-lwf-loading><span class="lwf__spinner" aria-hidden="true"></span>Loading the live site…</div>
        <iframe class="lwf__iframe" src="${esc(url)}" title="${esc(concept.name)} live website preview" loading="lazy" data-lwf-iframe></iframe>`
-    : captureScreen();
+    : captureScreen(cap);
 
   return `
-  <div class="lwf" data-lwf data-mode="${live ? 'live' : 'capture'}">
+  <div class="lwf" data-lwf data-mode="${live ? 'live' : 'capture'}" data-capture="${short ? 'short' : 'tall'}">
     <div class="lwf__stage">
       <div class="lwf__frame" data-lwf-frame data-cp-reveal="frame">
         <div class="lwf__bar">
@@ -222,10 +320,10 @@ function liveWebsiteFrame() {
     <div class="lwf__foot">
       <p class="lwf__note" data-lwf-note ${live ? 'hidden' : ''}>
         <span class="lwf__note-icon">${icon.info}</span>
-        <span><strong>Live embedding unavailable.</strong> This store doesn’t allow itself to be shown inside other pages, so you’re viewing a full-page capture of its homepage. Open the full website to browse it live.</span>
+        <span data-lwf-note-text>${captureNote()}</span>
       </p>
       <div class="lwf__actions">
-        <button type="button" class="btn btn--secondary lwf__expand" data-lwf-expand aria-expanded="false" ${live ? 'hidden' : ''}>
+        <button type="button" class="btn btn--secondary lwf__expand" data-lwf-expand aria-expanded="false" ${live || short ? 'hidden' : ''}>
           <span class="btn__label">Show full capture</span><span class="btn__icon btn__icon--down">${icon.down}</span>
         </button>
         ${button({ label: 'Open full website', href: concept.websiteUrl, iconHtml: icon.external, iconClass: 'btn__icon--diag' })}
@@ -235,18 +333,18 @@ function liveWebsiteFrame() {
 }
 
 function renderStage() {
-  const live = Boolean(safeUrl(concept.websiteUrl) && detail.embeddable);
+  const live = embedLive();
   return `
   <section class="cp-stage" id="live-preview" aria-labelledby="cp-stage-title">
     <div class="page-container">
       <div class="cp-stage__head" data-cp-reveal>
         <div class="cp-stage__intro">
           <h2 class="cp-eyebrow" id="cp-stage-title">Live website preview</h2>
-          <p class="cp-stage__title">The complete homepage, as built.</p>
+          <p class="cp-stage__title">${live ? 'The live homepage, ready to browse.' : 'The complete homepage, as built.'}</p>
         </div>
         <p class="cp-stage__hint">
           <span class="cp-stage__pulse" aria-hidden="true"></span>
-          <span class="cp-stage__hint-wide">${live ? 'Live site — scroll inside' : 'Full-page capture — scroll inside'}</span>
+          <span class="cp-stage__hint-wide">${live ? 'Live site — browse inside' : 'Full-page capture — scroll inside'}</span>
           <span class="cp-stage__hint-narrow">${live ? 'Live site' : 'Full-page capture'}</span>
         </p>
       </div>
@@ -256,7 +354,7 @@ function renderStage() {
 }
 
 /* Panel ratio follows the capture, clamped so very wide rows don't become thin strips. */
-const panelRatio = (s) => Math.min(2.2, Math.max(1.25, (s.width || 1200) / (s.height || 750))).toFixed(3);
+const panelRatio = (s) => Math.min(2.6, Math.max(1.25, (s.width || 1200) / (s.height || 750))).toFixed(3);
 
 function renderWork() {
   const strengths = detail.strengths || [];
@@ -287,7 +385,7 @@ function renderWork() {
       <div class="cp-work__head">
         <p class="eyebrow" data-cp-reveal>Design review</p>
         <h2 class="cp-work__title" id="cp-work-title" data-cp-reveal>What makes this direction work</h2>
-        <p class="cp-work__intro" data-cp-reveal>The details worth looking for as you browse the live build — each shown as it appears on the ${esc(concept.name)} homepage.</p>
+        <p class="cp-work__intro" data-cp-reveal>The details worth looking for as you browse the live build — each shown as it appears on the ${esc(concept.name)} website.</p>
       </div>
       <ol class="cp-work__list">${items}</ol>
     </div>
@@ -326,11 +424,13 @@ function renderBuild() {
 }
 
 function renderDecision() {
-  const others = concepts.filter((c) => c.id !== concept.id);
+  // Next concept in review order; the last one loops back to the first.
+  const index = concepts.findIndex((c) => c.id === concept.id);
+  const next = concepts[(index + 1) % concepts.length];
   return `
   <section class="cp-decide" id="decide" aria-labelledby="cp-decide-title">
     <div class="page-container">
-      <div class="cp-decide__panel ${theme === 'samriti' ? 'theme-dark' : 'glass glass-strong'}" data-cp-reveal>
+      <div class="cp-decide__panel ${detail.panel === 'dark' ? 'theme-dark' : 'glass glass-strong'}" data-cp-reveal>
         <div class="cp-decide__copy">
           <p class="cp-eyebrow">Your decision</p>
           <h2 class="cp-decide__title" id="cp-decide-title">Ready to choose?</h2>
@@ -338,10 +438,19 @@ function renderDecision() {
         </div>
         <div class="cp-decide__actions">
           ${button({ label: 'Select this direction', iconHtml: icon.right, block: true, attrs: `data-select="${esc(concept.id)}"` })}
-          ${others
-            .map((o) => button({ label: `View ${o.name}`, variant: 'secondary', anchor: conceptPath(o), iconHtml: icon.right, block: true }))
-            .join('')}
-          <a class="cp-compare" href="/#review">Compare both directions ${icon.right}</a>
+          ${
+            next && next.id !== concept.id
+              ? button({
+                  label: `View ${next.name}`,
+                  variant: 'secondary',
+                  anchor: conceptPath(next),
+                  iconHtml: icon.right,
+                  block: true,
+                  attrs: `data-next-concept aria-label="Next concept: ${esc(next.number)} ${esc(next.name)}"`,
+                })
+              : ''
+          }
+          <a class="cp-compare" href="/#review">Compare all directions ${icon.right}</a>
         </div>
       </div>
     </div>
@@ -448,9 +557,24 @@ function bindCapture(root) {
 function fallbackToCapture(root) {
   root.dataset.mode = 'capture';
   $('[data-lwf-screen]', root).innerHTML = captureScreen();
+  $('[data-lwf-note-text]', root).innerHTML =
+    '<strong>Live preview unavailable right now.</strong> The live site didn’t load in time, so you’re viewing a capture of its homepage. Open the full website to browse it live.';
   $('[data-lwf-note]', root).hidden = false;
-  $('[data-lwf-expand]', root).hidden = false;
+  $('[data-lwf-expand]', root).hidden = root.dataset.capture === 'short';
   bindCapture(root);
+}
+
+/* Crossing the phone breakpoint swaps live iframe ⇄ capture in place. */
+function setupStageSwap() {
+  if (!detail.embeddable) return;
+  phone.addEventListener('change', () => {
+    const stage = $('.cp-stage');
+    if (!stage) return;
+    stage.outerHTML = renderStage();
+    $$('.cp-stage [data-cp-reveal]').forEach((el) => el.classList.add('is-in', 'is-settled'));
+    setupFrame();
+    bindTilt($('[data-lwf-frame]'));
+  });
 }
 
 function setupFrame() {
@@ -498,10 +622,15 @@ function toggleCapture(btn) {
  * Depth: pointer tilt on the browser frame (desktop mouse only, ≤1.5deg)
  * ------------------------------------------------------------------ */
 
-function setupTilt() {
-  const frame = $('[data-lwf-frame]');
+const tiltEnabled = () => finePointer.matches && !reducedMotion.matches && window.innerWidth >= 768;
+
+const clearTilt = (frame) => {
+  frame.style.removeProperty('--rx');
+  frame.style.removeProperty('--ry');
+};
+
+function bindTilt(frame) {
   if (!frame) return;
-  const enabled = () => finePointer.matches && !reducedMotion.matches && window.innerWidth >= 768;
   let pointer = null;
   let raf = 0;
 
@@ -513,14 +642,9 @@ function setupTilt() {
   });
   if (reducedMotion.matches) frame.classList.add('is-settled');
 
-  const clear = () => {
-    frame.style.removeProperty('--rx');
-    frame.style.removeProperty('--ry');
-  };
-
   const flush = () => {
     raf = 0;
-    if (!pointer || !enabled()) return;
+    if (!pointer || !tiltEnabled()) return;
     const rect = frame.getBoundingClientRect();
     const px = Math.max(-0.5, Math.min(0.5, (pointer.x - rect.left) / rect.width - 0.5));
     const py = Math.max(-0.5, Math.min(0.5, (pointer.y - rect.top) / rect.height - 0.5));
@@ -532,7 +656,7 @@ function setupTilt() {
   frame.addEventListener(
     'pointermove',
     (event) => {
-      if (event.pointerType !== 'mouse' || !enabled()) return;
+      if (event.pointerType !== 'mouse' || !tiltEnabled()) return;
       pointer = { x: event.clientX, y: event.clientY };
       if (!raf) raf = requestAnimationFrame(flush);
     },
@@ -540,10 +664,15 @@ function setupTilt() {
   );
   frame.addEventListener('pointerleave', () => {
     pointer = null;
-    clear();
+    clearTilt(frame);
   });
+}
+
+function setupTilt() {
+  bindTilt($('[data-lwf-frame]'));
   const reset = () => {
-    if (!enabled()) clear();
+    const frame = $('[data-lwf-frame]');
+    if (frame && !tiltEnabled()) clearTilt(frame);
   };
   reducedMotion.addEventListener('change', reset);
   finePointer.addEventListener('change', reset);
@@ -676,6 +805,7 @@ function init() {
   setupScroll();
   setupReveal('[data-cp-reveal]');
   setupTilt();
+  setupStageSwap();
 
   const start = () => document.body.classList.add('is-loaded');
   if (document.fonts?.ready) Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 700))]).then(start);

@@ -55,17 +55,17 @@ export const site = {
   hero: {
     eyebrow: 'Website Design Review',
     /** Each item starts on a new line and wraps naturally. All lines share one style. */
-    heading: [{ text: 'Two directions.' }, { text: 'One final experience.' }],
+    heading: [{ text: 'Four directions.' }, { text: 'One final experience.' }],
     intro:
-      'Explore both proposed website concepts below. Review the layouts, interactions and individual page experiences, then choose the direction that best represents the brand.',
+      'Explore all four proposed website concepts below. Review the layouts, interactions and individual page experiences, then choose the direction that best represents the brand.',
     cta: 'Begin the review',
     /** Small key/value details beside the intro. Remove any you don't need. */
     meta: [
       { label: 'Prepared', value: 'September 2026' },
-      { label: 'Scope', value: 'Homepage, Collection, Product' },
+      { label: 'Scope', value: 'Homepage and key pages' },
     ],
     steps: [
-      { number: '01', title: 'Concepts', text: 'Two curated design directions.' },
+      { number: '01', title: 'Concepts', text: 'Four curated design directions.' },
       { number: '02', title: 'Explore', text: 'Browse each live build, page by page.' },
       { number: '03', title: 'Select', text: 'Confirm the direction to develop.' },
     ],
@@ -73,12 +73,12 @@ export const site = {
 
   conceptsIntro: {
     eyebrow: 'The Concepts',
-    heading: 'Two proposed directions, each presented as a live, browsable build.',
+    heading: 'Four proposed directions, each presented as a live, browsable build.',
   },
 
   review: {
     eyebrow: 'Review',
-    heading: 'Seen both directions?',
+    heading: 'Seen all four directions?',
     text: 'Review the individual pages and interactions before confirming the direction you would like to develop further.',
   },
 
@@ -92,7 +92,7 @@ export const site = {
 
   footer: {
     note: 'Prepared for client review.',
-    tagline: 'Two directions. One final build.',
+    tagline: 'Four directions. One final build.',
   },
 
   selection: {
@@ -142,6 +142,42 @@ export const concepts = [
       },
     ],
   },
+  {
+    id: 'country-kids',
+    number: '03',
+    label: 'Concept Three',
+    name: 'Country Kids',
+    description:
+      'A not-for-profit early learning centre rooted in Country, where every child belongs. Seven nature-named rooms, a curriculum shaped like the landscape and clear family pathways give the brand warmth and trust.',
+    traits: ['Early Learning', 'Country', 'Belonging'],
+    websiteUrl: 'https://www.countrykids.au/',
+    previewImage: '/previews/country-kids.jpg',
+    previewAlt: 'Country Kids — homepage screenshot',
+    pages: [
+      { name: 'Homepage', url: 'https://www.countrykids.au/' },
+      { name: 'Our Story', url: 'https://www.countrykids.au/about' },
+      { name: 'Rooms', url: 'https://www.countrykids.au/rooms' },
+      { name: 'Curriculum', url: 'https://www.countrykids.au/curriculum' },
+    ],
+  },
+  {
+    id: 'gulf-connect',
+    number: '04',
+    label: 'Concept Four',
+    name: 'Gulf Connect',
+    description:
+      'A capital-markets communications consultancy connecting international companies with Gulf capital, partners and media. An institutional palette, a three-part capability model and investor-focused pathways build confidence.',
+    traits: ['Capital Markets', 'Gulf', 'Strategic Communications'],
+    websiteUrl: 'https://www.gulfconnectconsultancy.com/',
+    previewImage: '/previews/gulf-connect.jpg',
+    previewAlt: 'Gulf Connect — homepage screenshot',
+    pages: [
+      { name: 'Homepage', url: 'https://www.gulfconnectconsultancy.com/' },
+      { name: 'What We Do', url: 'https://www.gulfconnectconsultancy.com/what-we-do' },
+      { name: 'About', url: 'https://www.gulfconnectconsultancy.com/about' },
+      { name: 'Contact', url: 'https://www.gulfconnectconsultancy.com/contact' },
+    ],
+  },
 ];
 
 /**
@@ -151,14 +187,20 @@ export const concepts = [
  *  Keyed by concept `id`. Name, number, live URL and page links
  *  come from `concepts` above; this adds the presentation layer.
  *
- *  theme       Visual world of the page: 'alinkriti' | 'samriti'.
+ *  theme       Visual world of the page:
+ *              'alinkriti' | 'samriti' | 'country' | 'gulf'.
+ *  panel       'dark' gives the decision panel a deep ground.
  *  embeddable  true only if the live site allows being shown in an
- *              iframe. Both stores send `X-Frame-Options: DENY` and
- *              `frame-ancestors 'none'` (Shopify default, checked
- *              September 2026), so the page shows `capture` — a
- *              full-page screenshot — plus links to the live site.
+ *              iframe (checked September 2026):
+ *              - AlinKriti, Samriti: `X-Frame-Options: DENY` and
+ *                `frame-ancestors 'none'` (Shopify default) → false.
+ *              - Country Kids, Gulf Connect: no framing restrictions,
+ *                verified rendering in a real iframe → true.
+ *              `capture` (a full-page screenshot) is always shown when
+ *              embedding is off, on phones, or if the live site fails
+ *              to load.
  *  strengths   What the client should look for. Images are crops of
- *              the live homepage in /public/captures/<id>/.
+ *              the live site in /public/captures/<id>/.
  * ============================================================
  */
 export const conceptDetails = {
@@ -226,6 +268,7 @@ export const conceptDetails = {
 
   'samriti-textiles': {
     theme: 'samriti',
+    panel: 'dark',
     themeColor: '#F3E9DF',
     titleLines: ['Samriti', 'Textiles'],
     tagline: 'A richer, collection-led fashion experience built around Indian ethnic wear and visual discovery.',
@@ -291,6 +334,158 @@ export const conceptDetails = {
         width: 1200,
         height: 500,
         alt: 'Samriti Textiles “Winter Sale is On!” promotional module',
+      },
+    ],
+  },
+
+  'country-kids': {
+    theme: 'country',
+    themeColor: '#F3F0E4',
+    titleLines: ['Country', 'Kids'],
+    tagline: 'A warm, story-led early learning experience built around Country, belonging and child-centred discovery.',
+    tags: ['Early Learning', 'Country', 'Belonging'],
+    embeddable: true,
+    capture: {
+      src: '/captures/country-kids/full.jpg',
+      width: 1200,
+      height: 750,
+      alt: 'Capture of the Country Kids homepage',
+    },
+    strengths: [
+      {
+        label: 'Brand story',
+        title: 'Strong Brand Story',
+        text: 'The website builds its identity around “Rooted in Country” and the idea that every child belongs, creating a clear emotional foundation for the brand.',
+        image: '/captures/country-kids/story.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'Country Kids homepage: “Rooted in Country. Where every child belongs.”',
+      },
+      {
+        label: 'Room discovery',
+        title: 'Age-Based Room Discovery',
+        text: 'Seven rooms are organised by age and stage, making it easy for families to understand where their child fits.',
+        image: '/captures/country-kids/rooms.jpg',
+        width: 1200,
+        height: 583,
+        alt: 'Country Kids rooms page: “A room for every age & stage”',
+      },
+      {
+        label: 'Naming system',
+        title: 'Nature-Led Naming System',
+        text: 'Rooms such as Joey, Koala, Kookaburra, Kingfisher, Kangaroo and Bunjil reinforce the Australian identity throughout the experience.',
+        image: '/captures/country-kids/names.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'Country Kids room cards named after Australian animals',
+      },
+      {
+        label: 'Curriculum',
+        title: 'Curriculum Storytelling',
+        text: 'The curriculum is presented through concepts such as Seeds, Country, River, Seasons and High Country, giving the educational approach a memorable structure.',
+        image: '/captures/country-kids/curriculum.jpg',
+        width: 1200,
+        height: 733,
+        alt: 'Country Kids curriculum page: “Five Landscapes of Country Kids”',
+      },
+      {
+        label: 'Family pathways',
+        title: 'Family-Focused Conversion',
+        text: 'Book a Tour, Enrolment, Fees & CCS, Families and Contact pathways support practical parent decision-making.',
+        image: '/captures/country-kids/families.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'Country Kids family pathways: tours, enrolment, fees and contact',
+      },
+      {
+        label: 'Trust + compliance',
+        title: 'Trust and Compliance Layer',
+        text: 'The site gives clear space to child safety, National Quality Framework alignment, Victorian Kinder Funding and other family-relevant information.',
+        image: '/captures/country-kids/compliance.jpg',
+        width: 1200,
+        height: 683,
+        alt: 'Country Kids compliance and child safety information',
+      },
+    ],
+  },
+
+  'gulf-connect': {
+    theme: 'gulf',
+    panel: 'dark',
+    themeColor: '#0F1B2D',
+    titleLines: ['Gulf', 'Connect'],
+    tagline: 'A strategic Gulf-market platform connecting international companies with capital, media and regional audiences.',
+    tags: ['Capital Markets', 'Gulf', 'Strategic Communications'],
+    embeddable: true,
+    capture: {
+      src: '/captures/gulf-connect/full.jpg',
+      width: 1200,
+      height: 11274,
+      alt: 'Full-page capture of the Gulf Connect homepage',
+    },
+    strengths: [
+      {
+        label: 'Positioning',
+        title: 'Clear Gulf Positioning',
+        text: 'The homepage immediately establishes the business around international companies, Gulf capital, partners and media across Dubai, Abu Dhabi and Riyadh.',
+        image: '/captures/gulf-connect/positioning.jpg',
+        width: 1200,
+        height: 733,
+        alt: 'Gulf Connect homepage hero: “We Connect International Companies With Gulf Capital, Partners and Media.”',
+      },
+      {
+        label: 'Market context',
+        title: 'Regional Market Context',
+        text: 'The site explains Gulf market coverage across the UAE, Saudi Arabia, Qatar, Kuwait, Bahrain and Oman, creating a strong geographic framework.',
+        image: '/captures/gulf-connect/markets.jpg',
+        width: 1200,
+        height: 467,
+        alt: 'Gulf Connect “Gulf market coverage” section',
+      },
+      {
+        label: 'Capability model',
+        title: 'Simple Capability Structure',
+        text: 'Convene, Place and Produce give the service model a memorable three-part structure.',
+        image: '/captures/gulf-connect/model.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'Gulf Connect “Convene, Place, Produce” section',
+      },
+      {
+        label: 'Capabilities',
+        title: 'Integrated Corporate Narrative',
+        text: 'Investor relations, market outreach, media and digital communications are presented as connected capabilities rather than disconnected services.',
+        image: '/captures/gulf-connect/capabilities.jpg',
+        width: 1200,
+        height: 950,
+        alt: 'Gulf Connect “Our Capabilities” section',
+      },
+      {
+        label: 'Investor pathway',
+        title: 'Investor-Focused Information Architecture',
+        text: 'The site separates company-facing and investor-facing pathways while keeping the wider capital-markets narrative consistent.',
+        image: '/captures/gulf-connect/investors.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'Gulf Connect “For Investors” page',
+      },
+      {
+        label: 'Arabic + regional',
+        title: 'Arabic and Regional Communication Layer',
+        text: 'Arabic communications, certified financial translation and regional distribution add a clearly differentiated regional capability.',
+        image: '/captures/gulf-connect/arabic.jpg',
+        width: 1200,
+        height: 683,
+        alt: 'Gulf Connect Arabic corporate communications and certified financial translation section',
+      },
+      {
+        label: 'Thought leadership',
+        title: 'Strong Thought-Leadership Structure',
+        text: 'Sections such as Regional Perspective, The Opportunity, Regional Case and Market Presence explain the reasoning behind the service model rather than simply listing services.',
+        image: '/captures/gulf-connect/perspective.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'Gulf Connect “Regional Perspective. Global Market Standards.” section',
       },
     ],
   },

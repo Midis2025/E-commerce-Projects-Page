@@ -57,11 +57,17 @@ straight to the live store in a new tab.
 | Route entry files                  | `concepts/<id>/index.html` (listed in `vite.config.js`)   |
 | Screenshots                        | `public/captures/<id>/` (full page + section crops)       |
 
-- **Live preview.** Both stores send `X-Frame-Options: DENY` / `frame-ancestors 'none'`, so they can't be
-  shown in an iframe. The page shows a scrollable full-page capture with **Open full website** instead. If a
-  site later allows framing, set `embeddable: true` and the live site loads in the frame.
+- **Live preview.** `embeddable` in `conceptDetails` decides it:
+  - AlinKriti and Samriti Textiles (Shopify) send `X-Frame-Options: DENY` / `frame-ancestors 'none'`, so they
+    show a scrollable full-page capture with **Open full website**.
+  - Country Kids and Gulf Connect allow framing, so the real site loads in the 3D frame on tablet and desktop.
+    Phones get the capture instead (a small nested frame traps touch scrolling), and so does any live site
+    that fails to load.
+- **Themes.** `theme` picks the visual world (`alinkriti`, `samriti`, `country`, `gulf`); `panel: 'dark'`
+  gives the decision panel a deep ground. All themes share the same markup and 3D frame.
 - **Adding a concept.** Add it to `concepts` and `conceptDetails`, then copy one of the
-  `concepts/<id>/index.html` files and change its `data-concept` attribute.
+  `concepts/<id>/index.html` files and change its `data-concept` attribute. The homepage, review list,
+  navigation, "next concept" link and build inputs all pick it up from the data.
 - **Selection** uses the same `localStorage` key and confirmation dialog as the homepage, so a choice made
   on a concept page shows up on the review page and vice versa.
 - Shared code (utilities, buttons, selection, modal, toasts) lives in `src/shared.js`.

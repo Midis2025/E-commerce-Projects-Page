@@ -20,6 +20,14 @@ html[data-concept='samriti-textiles'] {
   background: #f3e9df;
 }
 
+html[data-concept='country-kids'] {
+  background: #f3f0e4;
+}
+
+html[data-concept='gulf-connect'] {
+  background: #f4f1ea;
+}
+
 @media (max-width: 760px) {
   html[data-concept] {
     --cp-header-h: 100px; /* brand row + concept switcher row */
@@ -174,7 +182,9 @@ html[data-concept='samriti-textiles'] {
 }
 
 .cp-atmos__base,
-.cp-atmos__weave {
+.cp-atmos__weave,
+.cp-atmos__grain,
+.cp-atmos__grid {
   position: absolute;
   inset: 0;
 }
@@ -418,8 +428,17 @@ html[data-concept='samriti-textiles'] {
   color: var(--accent-text);
 }
 
-.cp-nav__short {
-  display: none;
+/* Four concepts: below 1280px only the current concept keeps its name on screen;
+   the others show their number (names stay available to screen readers). */
+@media (max-width: 1279px) {
+  .cp-nav__link:not([aria-current='page']) .cp-nav__name:not(.cp-nav__name--always) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 .cp-nav__dot {
@@ -535,13 +554,19 @@ html[data-concept='samriti-textiles'] {
     bottom: -1px;
   }
 
-  .cp-nav__num,
-  .cp-nav__name:not(.cp-nav__name--always) {
-    display: none;
+  /* Compact numbered navigator: 01 02 03 04 Review */
+  .cp-nav__link .cp-nav__name:not(.cp-nav__name--always) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
-  .cp-nav__short {
-    display: inline;
+  .cp-nav__num {
+    font-size: 12px;
+    color: inherit;
   }
 }
 
@@ -1104,6 +1129,7 @@ html[data-concept='samriti-textiles'] {
 
 .lwf__loading {
   position: absolute;
+  z-index: 1; /* above the iframe until it loads, then removed */
   inset: 0;
   display: grid;
   place-content: center;
@@ -1236,6 +1262,21 @@ html[data-concept='samriti-textiles'] {
 }
 
 .lwf__expand {
+  display: none;
+}
+
+/* Short captures (e.g. a single-screen homepage) show whole — nothing to scroll. */
+.lwf[data-capture='short'][data-mode='capture'] .lwf__screen {
+  height: auto;
+}
+
+.lwf[data-capture='short'][data-mode='capture'] .lwf__scroll {
+  position: static;
+  overflow: visible;
+}
+
+.lwf[data-capture='short'] .lwf__cue,
+.lwf[data-capture='short'] .lwf__fade {
   display: none;
 }
 
@@ -1446,11 +1487,12 @@ html[data-concept='samriti-textiles'] {
   background: var(--placeholder);
 }
 
+/* Top-left anchor: the captured sites are left-aligned, so any trimming falls on the right edge */
 .cp-feature__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 0%;
+  object-position: 0% 0%;
 }
 
 .cp-feature__media.is-missing img {
@@ -2062,5 +2104,815 @@ html[data-concept='samriti-textiles'] {
 
   .lwf__frame {
     transform: none !important;
+  }
+}
+
+/* ==================================================================
+   Country Kids — eucalyptus, warm cream, sunlight; soft layered paper
+   ================================================================== */
+
+.cp--country {
+  --cp-bg-solid: #f3f0e4;
+  --cp-green: #3f6b43;
+  --cp-green-deep: #2c4a2f;
+  --cp-euc: #9db8a2;
+  --cp-sun: #e3b04b;
+  --cp-sky: #9fc6da;
+  --cp-paper: #fbf8ef;
+  --ink: #1f2a20;
+  --fg: #1f2a20;
+  --muted: #4c5a4c;
+  --fg-muted: #4c5a4c;
+  --accent: #4f7a4e;
+  --accent-deep: #2c4a2f;
+  --accent-soft: #a9c4a2;
+  --accent-text: #3a5f3b;
+  --line: rgba(31, 42, 32, 0.13);
+  --line-strong: rgba(31, 42, 32, 0.28);
+  --hover-tint: rgba(79, 122, 78, 0.07);
+  --placeholder: #e4e6d6;
+  --frame-url: rgba(255, 253, 246, 0.88);
+  --frame-radius: clamp(20px, 2vw, 30px);
+
+  --cp-surface: rgba(251, 248, 239, 0.75);
+  --cp-header-bg: rgba(244, 241, 230, 0.82);
+  --cp-glow: rgba(79, 122, 78, 0.28);
+  --cp-frame-bg: linear-gradient(135deg, rgba(255, 253, 246, 0.88), rgba(240, 238, 222, 0.6));
+  --cp-frame-border: rgba(255, 255, 255, 0.75);
+  --cp-shadow-1: rgba(44, 62, 36, 0.22);
+  --cp-shadow-2: rgba(44, 62, 36, 0.1);
+}
+
+.cp--country .btn--primary:not(.is-selected) {
+  --btn-bg: var(--cp-green-deep);
+  --btn-border: var(--cp-green-deep);
+  --btn-fg: var(--cp-paper);
+}
+
+.cp--country .btn--primary:not(.is-selected):hover {
+  --btn-bg: var(--cp-green);
+  --btn-border: var(--cp-green);
+}
+
+.cp--country .btn.is-selected {
+  --btn-bg: rgba(79, 122, 78, 0.1);
+  --btn-border: var(--accent);
+}
+
+/* Atmosphere: gradient fields, leaf outlines, paper sheets */
+.cp-atmos--country .cp-atmos__base {
+  background:
+    radial-gradient(ellipse 60% 50% at 92% 0%, rgba(227, 176, 75, 0.16), transparent 70%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgba(157, 184, 162, 0.32), transparent 70%),
+    linear-gradient(180deg, #f6f3e8 0%, #f1eee0 60%, #ecead9 100%);
+}
+
+.cp-atmos__grain {
+  opacity: 0.55;
+  background-image: radial-gradient(rgba(107, 78, 54, 0.07) 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
+.cp-atmos__blob--a {
+  top: -14vh;
+  left: -14vw;
+  width: min(760px, 62vw);
+}
+
+.cp-atmos__blob--b {
+  top: 6vh;
+  right: -16vw;
+  width: min(640px, 56vw);
+}
+
+.cp-atmos__blob--c {
+  bottom: -24vh;
+  left: 30vw;
+  width: min(700px, 60vw);
+}
+
+.cp-atmos__leaves {
+  top: 44vh;
+  right: 2vw;
+  width: min(300px, 26vw);
+}
+
+.cp-atmos__sheet {
+  perspective: 1000px;
+}
+
+.cp-atmos__sheet span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 36px;
+}
+
+.cp-atmos__sheet--a {
+  left: -7vw;
+  bottom: 8vh;
+  width: min(420px, 36vw);
+  aspect-ratio: 5 / 4;
+}
+
+.cp-atmos__sheet--a span {
+  background: linear-gradient(145deg, rgba(251, 248, 239, 0.9), rgba(236, 232, 212, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 30px 60px -30px rgba(44, 62, 36, 0.3);
+  transform: rotateX(40deg) rotateZ(-14deg);
+  opacity: 0.7;
+}
+
+.cp-atmos__sheet--b {
+  left: 5vw;
+  bottom: -5vh;
+  width: min(320px, 28vw);
+  aspect-ratio: 5 / 4;
+}
+
+.cp-atmos__sheet--b span {
+  background: linear-gradient(145deg, rgba(157, 184, 162, 0.45), rgba(159, 198, 218, 0.3));
+  transform: rotateX(46deg) rotateZ(-4deg);
+  opacity: 0.7;
+}
+
+/* Hero: two lines, the second offset in gum-leaf green */
+.cp--country .cp-hero__title {
+  font-size: clamp(3.6rem, 10vw, 10.5rem);
+  letter-spacing: -0.04em;
+  color: var(--cp-green-deep);
+}
+
+.cp--country .cp-hero__title .line + .line .line__inner {
+  color: var(--cp-green);
+}
+
+@media (min-width: 700px) {
+  .cp--country .cp-hero__title .line + .line {
+    padding-left: 1.2em;
+  }
+}
+
+.cp--country .cp-tags li {
+  border-radius: 999px;
+  background: var(--cp-green-deep);
+  color: var(--cp-paper);
+}
+
+.cp--country .cp-tags li:nth-child(2) {
+  background: rgba(227, 176, 75, 0.28);
+  color: #5a4214;
+  box-shadow: inset 0 0 0 1px rgba(227, 176, 75, 0.65);
+}
+
+.cp--country .cp-tags li:nth-child(3) {
+  background: rgba(159, 198, 218, 0.35);
+  color: #23465a;
+  box-shadow: inset 0 0 0 1px rgba(159, 198, 218, 0.9);
+}
+
+/* Paper card with a eucalyptus sheet tucked behind it */
+.cp--country .cp-hero__aside {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(24px, 2.6vw, 36px);
+}
+
+.cp--country .cp-hero__aside::before,
+.cp--country .cp-hero__aside::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  pointer-events: none;
+}
+
+.cp--country .cp-hero__aside::before {
+  z-index: -2;
+  background: rgba(157, 184, 162, 0.55);
+  transform: rotate(-2.2deg) translate(-6px, 10px);
+}
+
+.cp--country .cp-hero__aside::after {
+  z-index: -1;
+  background: var(--cp-paper);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 30px 60px -34px rgba(44, 62, 36, 0.35);
+}
+
+/* Stage: layered paper sheets behind the frame */
+.cp--country .lwf::before,
+.cp--country .lwf::after {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  border-radius: 48px;
+  pointer-events: none;
+}
+
+.cp--country .lwf::before {
+  left: -2%;
+  right: -2%;
+  top: 12%;
+  bottom: 16%;
+  background: linear-gradient(160deg, rgba(157, 184, 162, 0.55), rgba(159, 198, 218, 0.35));
+  transform: rotate(-1.2deg);
+}
+
+.cp--country .lwf::after {
+  left: 5%;
+  right: 6%;
+  top: 22%;
+  bottom: 10%;
+  background: rgba(251, 248, 239, 0.8);
+  box-shadow: 0 40px 80px -40px rgba(44, 62, 36, 0.35);
+  transform: rotate(0.8deg);
+}
+
+/* Features: paper cards, each with its own tinted sheet beneath */
+.cp--country .cp-feature {
+  position: relative;
+  isolation: isolate;
+  gap: 0;
+  padding: 12px 12px 28px;
+}
+
+.cp--country .cp-feature::before,
+.cp--country .cp-feature::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 26px;
+  pointer-events: none;
+}
+
+.cp--country .cp-feature::before {
+  z-index: -2;
+  background: rgba(157, 184, 162, 0.45);
+  transform: rotate(-1.4deg) translate(-4px, 7px);
+}
+
+.cp--country .cp-feature:nth-child(3n + 2)::before {
+  background: rgba(227, 176, 75, 0.32);
+  transform: rotate(1.2deg) translate(5px, 7px);
+}
+
+.cp--country .cp-feature:nth-child(3n)::before {
+  background: rgba(159, 198, 218, 0.42);
+  transform: rotate(-0.8deg) translate(3px, 8px);
+}
+
+.cp--country .cp-feature::after {
+  z-index: -1;
+  background: var(--cp-paper);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 28px 56px -34px rgba(44, 62, 36, 0.35);
+}
+
+.cp--country .cp-feature__media {
+  border-radius: 18px;
+}
+
+.cp--country .cp-feature__body {
+  padding: 22px 12px 0;
+}
+
+.cp--country .cp-feature__num {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(79, 122, 78, 0.12);
+  font-size: 1.1rem;
+  color: var(--cp-green-deep);
+}
+
+@media (min-width: 700px) {
+  .cp--country .cp-work__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(28px, 3vw, 44px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .cp--country .cp-work__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cp--country .cp-feature:nth-child(3n + 2) {
+    margin-top: clamp(40px, 4vw, 72px);
+  }
+}
+
+/* Page links: rounded paper cards */
+.cp--country .cp-build__list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 700px) {
+  .cp--country .cp-build__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(14px, 1.8vw, 24px);
+  }
+}
+
+.cp--country .cp-page {
+  min-height: 116px;
+  padding: clamp(20px, 2.2vw, 30px);
+  border-radius: 24px;
+  border: 1px solid rgba(79, 122, 78, 0.18);
+  background: var(--cp-paper);
+  box-shadow: 0 24px 50px -36px rgba(44, 62, 36, 0.35);
+}
+
+.cp--country .cp-page:not(.is-disabled):hover {
+  border-color: var(--accent);
+  background: #fffdf6;
+}
+
+.cp--country .cp-page__num {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(227, 176, 75, 0.3);
+  color: #5a4214;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .cp--country .cp-page:not(.is-disabled):hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Decision: soft paper glass with a eucalyptus field */
+.cp--country .cp-decide__panel {
+  border-radius: 36px;
+}
+
+.cp--country .cp-decide__panel::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  right: -90px;
+  bottom: -140px;
+  width: 460px;
+  aspect-ratio: 1;
+  border-radius: 42% 58% 60% 40% / 45% 40% 60% 55%;
+  background: radial-gradient(circle at 40% 40%, rgba(157, 184, 162, 0.6), rgba(157, 184, 162, 0) 70%);
+  pointer-events: none;
+}
+
+@media (max-width: 699px) {
+  .cp-atmos__sheet--b,
+  .cp-atmos__leaves {
+    display: none;
+  }
+}
+
+/* ==================================================================
+   Gulf Connect — deep navy, sand, gold; architectural and institutional
+   ================================================================== */
+
+.cp--gulf {
+  --cp-bg-solid: #f4f1ea;
+  --cp-navy: #0f1b2d;
+  --cp-navy-2: #13233a;
+  --cp-sand: #d8c6a5;
+  --cp-gold: #b8955a;
+  --cp-teal: #3f6664;
+  --cp-offwhite: #f4f1ea;
+  --ink: #131d2b;
+  --fg: #131d2b;
+  --muted: #4a5361;
+  --fg-muted: #4a5361;
+  --accent: #b8955a;
+  --accent-deep: #0f1b2d;
+  --accent-soft: #d9c08f;
+  --accent-text: #7a5a26;
+  --line: rgba(19, 29, 43, 0.13);
+  --line-strong: rgba(19, 29, 43, 0.28);
+  --hover-tint: rgba(15, 27, 45, 0.05);
+  --placeholder: #e3ded2;
+  --frame-url: rgba(255, 255, 255, 0.9);
+  --frame-radius: clamp(10px, 1vw, 16px);
+
+  --cp-surface: rgba(255, 255, 255, 0.05);
+  --cp-header-bg: rgba(15, 27, 45, 0.9);
+  --cp-glow: rgba(184, 149, 90, 0.3);
+  --cp-frame-bg: linear-gradient(160deg, #1b2f4b, #0f1b2d);
+  --cp-frame-border: rgba(216, 198, 165, 0.35);
+  --cp-shadow-1: rgba(6, 12, 22, 0.42);
+  --cp-shadow-2: rgba(6, 12, 22, 0.2);
+}
+
+/* Light areas: navy primary */
+.cp--gulf .btn--primary:not(.is-selected) {
+  --btn-bg: var(--cp-navy);
+  --btn-border: var(--cp-navy);
+  --btn-fg: var(--cp-offwhite);
+}
+
+.cp--gulf .btn--primary:not(.is-selected):hover {
+  --btn-bg: #1e3350;
+  --btn-border: #1e3350;
+}
+
+.cp--gulf .btn.is-selected {
+  --btn-bg: rgba(184, 149, 90, 0.12);
+  --btn-border: var(--cp-gold);
+}
+
+/* Dark surfaces: header, hero, stage heading */
+.cp--gulf .cp-header,
+.cp--gulf .cp-hero,
+.cp--gulf .cp-stage__head {
+  --fg: #f4f1ea;
+  --fg-muted: #b9bfc9;
+  --line: rgba(244, 241, 234, 0.14);
+  --line-strong: rgba(244, 241, 234, 0.32);
+  --accent-text: #d9c08f;
+  color: var(--fg);
+}
+
+.cp--gulf .cp-header {
+  border-bottom-color: rgba(216, 198, 165, 0.18);
+  box-shadow: none;
+}
+
+.cp--gulf .cp-back {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.cp--gulf .cp-back:hover {
+  background: var(--cp-sand);
+  border-color: var(--cp-sand);
+  color: var(--cp-navy);
+}
+
+.cp--gulf .cp-hero .btn--primary:not(.is-selected) {
+  --btn-bg: var(--cp-gold);
+  --btn-border: var(--cp-gold);
+  --btn-fg: var(--cp-navy);
+}
+
+.cp--gulf .cp-hero .btn--primary:not(.is-selected):hover {
+  --btn-bg: var(--cp-sand);
+  --btn-border: var(--cp-sand);
+}
+
+.cp--gulf .cp-hero .btn--secondary {
+  --btn-bg: rgba(255, 255, 255, 0.05);
+  --btn-border: rgba(244, 241, 234, 0.3);
+  --btn-shadow: none;
+}
+
+.cp--gulf .cp-hero .btn--secondary:hover {
+  --btn-bg: rgba(255, 255, 255, 0.12);
+  --btn-border: var(--cp-offwhite);
+}
+
+/* Atmosphere behind the light editorial body */
+.cp-atmos--gulf .cp-atmos__base {
+  background:
+    radial-gradient(ellipse 50% 40% at 100% 60%, rgba(216, 198, 165, 0.32), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgba(79, 124, 122, 0.12), transparent 70%),
+    linear-gradient(180deg, #f5f2eb, #efebe1);
+}
+
+.cp-atmos__grid {
+  background-image:
+    linear-gradient(rgba(15, 27, 45, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 27, 45, 0.045) 1px, transparent 1px);
+  background-size: 96px 96px;
+}
+
+.cp-atmos__routes {
+  top: 28vh;
+  right: -8vw;
+  width: min(1000px, 80vw);
+}
+
+.cp-atmos__pane {
+  top: 54vh;
+  left: -4vw;
+  width: min(380px, 32vw);
+  aspect-ratio: 4 / 5;
+  perspective: 900px;
+}
+
+.cp-atmos__pane span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.3));
+  box-shadow: 0 40px 80px -40px rgba(15, 27, 45, 0.3);
+  transform: rotateY(28deg) rotateX(8deg);
+  opacity: 0.55;
+}
+
+/* Hero: navy with an architectural grid fading downward */
+.cp--gulf .cp-hero {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(180deg, var(--cp-navy) 0%, var(--cp-navy-2) 100%);
+}
+
+.cp--gulf .cp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(216, 198, 165, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(216, 198, 165, 0.07) 1px, transparent 1px);
+  background-size: 96px 96px;
+  -webkit-mask: linear-gradient(180deg, #000 20%, transparent 100%);
+  mask: linear-gradient(180deg, #000 20%, transparent 100%);
+  pointer-events: none;
+}
+
+.cp--gulf .cp-hero__title {
+  font-size: clamp(3.6rem, 10vw, 10.5rem);
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  color: var(--cp-offwhite);
+}
+
+.cp--gulf .cp-hero__title .line + .line .line__inner {
+  color: var(--cp-sand);
+}
+
+.cp--gulf .cp-tags li {
+  border-radius: 2px;
+  border: 1px solid rgba(216, 198, 165, 0.45);
+  color: var(--cp-sand);
+}
+
+.cp--gulf .cp-hero__aside {
+  position: relative;
+  padding: clamp(24px, 2.6vw, 36px);
+  border-radius: 4px;
+  border: 1px solid rgba(216, 198, 165, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cp--gulf .cp-hero__aside::before {
+  content: '';
+  position: absolute;
+  inset: -1px -1px auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cp-gold), transparent);
+}
+
+/* Stage: navy continues to mid-frame, then the light body; a gold hairline at the seam */
+.cp--gulf .cp-stage {
+  background: linear-gradient(
+    180deg,
+    var(--cp-navy-2) 0,
+    var(--cp-navy-2) calc(42% - 1px),
+    rgba(184, 149, 90, 0.55) calc(42% - 1px),
+    rgba(184, 149, 90, 0.55) 42%,
+    transparent 42%
+  );
+}
+
+.cp--gulf .lwf__frame {
+  --fg-muted: #c9ced6;
+}
+
+.cp--gulf .lwf__frame .preview__dots i {
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: none;
+}
+
+/* Dark address pill on the navy bezel so the URL stays legible */
+.cp--gulf .lwf__url {
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(216, 198, 165, 0.28);
+  color: #d5d9e0;
+}
+
+/* Features: an architectural hairline grid, editorial index numbers */
+.cp--gulf .cp-work__list {
+  gap: 0;
+  border-top: 1px solid var(--line-strong);
+}
+
+.cp--gulf .cp-feature {
+  padding: clamp(24px, 2.6vw, 40px) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.cp--gulf .cp-feature__media {
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.cp--gulf .cp-feature__meta::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--cp-gold);
+}
+
+.cp--gulf .cp-feature__num {
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: var(--accent-text);
+}
+
+.cp--gulf .cp-feature__label {
+  color: var(--cp-teal);
+}
+
+@media (min-width: 700px) {
+  .cp--gulf .cp-work__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cp--gulf .cp-feature {
+    padding-inline: clamp(20px, 2.4vw, 36px);
+  }
+
+  .cp--gulf .cp-feature:first-child {
+    grid-column: 1 / -1;
+    padding-inline: 0;
+  }
+
+  .cp--gulf .cp-feature:nth-child(odd):not(:first-child) {
+    border-left: 1px solid var(--line);
+  }
+
+  .cp--gulf .cp-feature:nth-child(even) {
+    padding-left: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cp--gulf .cp-work__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cp--gulf .cp-feature:first-child {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+    column-gap: clamp(40px, 5vw, 96px);
+    align-items: end;
+  }
+
+  .cp--gulf .cp-feature:nth-child(odd):not(:first-child) {
+    border-left: 0;
+  }
+
+  .cp--gulf .cp-feature:nth-child(even) {
+    padding-left: clamp(20px, 2.4vw, 36px);
+  }
+
+  .cp--gulf .cp-feature:not(:first-child):not(:nth-child(3n + 2)) {
+    border-left: 1px solid var(--line);
+  }
+
+  .cp--gulf .cp-feature:nth-child(3n + 2) {
+    padding-left: 0;
+  }
+}
+
+/* Page links: editorial columns under a navy rule; navy fill on hover */
+.cp--gulf .cp-build__list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 2px solid var(--cp-navy);
+}
+
+.cp--gulf .cp-page {
+  grid-template-columns: minmax(0, 1fr) 20px;
+  align-content: space-between;
+  row-gap: 24px;
+  min-height: 150px;
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cp--gulf .cp-page__num {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--display);
+  font-size: 1.9rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+.cp--gulf .cp-page__arrow {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+
+.cp--gulf .cp-page__name {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.cp--gulf .cp-page__path {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+.cp--gulf .cp-page:not(.is-disabled):hover {
+  background: var(--cp-navy);
+  color: var(--cp-offwhite);
+}
+
+.cp--gulf .cp-page:not(.is-disabled):hover .cp-page__num {
+  color: var(--cp-sand);
+}
+
+.cp--gulf .cp-page:not(.is-disabled):hover .cp-page__path {
+  color: #b9bfc9;
+}
+
+@media (min-width: 700px) {
+  .cp--gulf .cp-build__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cp--gulf .cp-build__list > li:nth-child(even) {
+    border-left: 1px solid var(--line);
+  }
+
+  .cp--gulf .cp-page {
+    min-height: 190px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .cp--gulf .cp-build__list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .cp--gulf .cp-build__list > li + li {
+    border-left: 1px solid var(--line);
+  }
+}
+
+/* Decision: navy panel on an architectural grid, gold hairline */
+.cp--gulf .cp-decide__panel {
+  --fg-muted: #c9ced6;
+  --line-strong: rgba(244, 241, 234, 0.3);
+  --accent-text: #d9c08f;
+  color: var(--cp-offwhite);
+  border-radius: 6px;
+  background:
+    linear-gradient(rgba(216, 198, 165, 0.06) 1px, transparent 1px) 0 0 / 80px 80px,
+    linear-gradient(90deg, rgba(216, 198, 165, 0.06) 1px, transparent 1px) 0 0 / 80px 80px,
+    linear-gradient(160deg, #172a44, var(--cp-navy));
+  box-shadow: 0 50px 100px -50px rgba(6, 12, 22, 0.6);
+}
+
+.cp--gulf .cp-decide__panel .cp-eyebrow {
+  color: var(--fg-muted);
+}
+
+.cp--gulf .cp-decide__panel::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cp-gold), transparent);
+  pointer-events: none;
+}
+
+.cp--gulf .cp-decide__panel .btn--primary:not(.is-selected) {
+  --btn-bg: var(--cp-gold);
+  --btn-border: var(--cp-gold);
+  --btn-fg: var(--cp-navy);
+}
+
+.cp--gulf .cp-decide__panel .btn--primary:not(.is-selected):hover {
+  --btn-bg: var(--cp-sand);
+  --btn-border: var(--cp-sand);
+}
+
+.cp--gulf .cp-decide__panel .btn.is-selected {
+  --btn-bg: rgba(216, 198, 165, 0.1);
+  --btn-border: var(--cp-gold);
+  --btn-fg: #e8d3a8;
+}
+
+@media (max-width: 699px) {
+  .cp-atmos__pane {
+    display: none;
+  }
+
+  .cp-atmos__routes {
+    width: 140vw;
+    right: -50vw;
   }
 }
