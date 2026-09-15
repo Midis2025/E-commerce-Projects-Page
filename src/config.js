@@ -143,3 +143,155 @@ export const concepts = [
     ],
   },
 ];
+
+/**
+ * ============================================================
+ *  CONCEPT DETAIL PAGES — /concepts/<id>/
+ * ============================================================
+ *  Keyed by concept `id`. Name, number, live URL and page links
+ *  come from `concepts` above; this adds the presentation layer.
+ *
+ *  theme       Visual world of the page: 'alinkriti' | 'samriti'.
+ *  embeddable  true only if the live site allows being shown in an
+ *              iframe. Both stores send `X-Frame-Options: DENY` and
+ *              `frame-ancestors 'none'` (Shopify default, checked
+ *              September 2026), so the page shows `capture` — a
+ *              full-page screenshot — plus links to the live site.
+ *  strengths   What the client should look for. Images are crops of
+ *              the live homepage in /public/captures/<id>/.
+ * ============================================================
+ */
+export const conceptDetails = {
+  alinkriti: {
+    theme: 'alinkriti',
+    themeColor: '#F4EDE2',
+    titleLines: ['AlinKriti'],
+    tagline: 'Heritage-led jewellery presented through a modern editorial storefront.',
+    tags: ['Jewellery', 'Heritage', 'Modern'],
+    embeddable: false,
+    capture: {
+      src: '/captures/alinkriti/full.jpg',
+      width: 1200,
+      height: 7532,
+      alt: 'Full-page capture of the AlinKriti homepage',
+    },
+    strengths: [
+      {
+        label: 'Brand hero',
+        title: 'Heritage Meets Modern Styling',
+        text: 'The storefront positions jewellery around a heritage-inspired identity while keeping the presentation suitable for a contemporary shopper.',
+        image: '/captures/alinkriti/hero.jpg',
+        width: 1200,
+        height: 817,
+        alt: 'AlinKriti homepage hero with the brand wordmark over a jewellery portrait',
+      },
+      {
+        label: 'Category discovery',
+        title: 'Category-Led Product Discovery',
+        text: 'The homepage surfaces categories including anklets, bracelets, chokers, earrings, necklaces and rings, making product discovery direct and visual.',
+        image: '/captures/alinkriti/categories.jpg',
+        width: 1200,
+        height: 467,
+        alt: 'AlinKriti homepage category row: anklets, bracelets, chokers, earrings, necklace and rings',
+      },
+      {
+        label: 'Shop the look',
+        title: 'Editorial Product Storytelling',
+        text: '“Shop the look,” visual collections and editorial content give products context beyond a simple catalogue.',
+        image: '/captures/alinkriti/shop-the-look.jpg',
+        width: 1200,
+        height: 833,
+        alt: 'AlinKriti “Shop the look” section with a styled necklace image',
+      },
+      {
+        label: 'Reviews + FAQ',
+        title: 'Trust-Building Content',
+        text: 'Customer reviews, FAQs and policy access create supporting reassurance around the shopping experience.',
+        image: '/captures/alinkriti/trust.jpg',
+        width: 1200,
+        height: 900,
+        alt: 'AlinKriti customer reviews and frequently asked questions sections',
+      },
+      {
+        label: 'Editorial content',
+        title: 'Content Beyond Commerce',
+        text: 'The blog layer adds storytelling around jewellery, styling and the AlinKriti brand.',
+        image: '/captures/alinkriti/blogs.jpg',
+        width: 1200,
+        height: 600,
+        alt: 'AlinKriti “Our Blogs” section with three article cards',
+      },
+    ],
+  },
+
+  'samriti-textiles': {
+    theme: 'samriti',
+    themeColor: '#F3E9DF',
+    titleLines: ['Samriti', 'Textiles'],
+    tagline: 'A richer, collection-led fashion experience built around Indian ethnic wear and visual discovery.',
+    tags: ['Ethnic Wear', 'Collection-Led', 'Lifestyle'],
+    embeddable: false,
+    capture: {
+      src: '/captures/samriti-textiles/full.jpg',
+      width: 1200,
+      height: 11160,
+      alt: 'Full-page capture of the Samriti Textiles homepage',
+    },
+    strengths: [
+      {
+        label: 'Category navigation',
+        title: 'Clear Ethnic-Wear Navigation',
+        text: 'Products and collections are organised around categories including Anarkali sets, lehenga sets, sharara suits, kurta-palazzo sets, gowns and co-ord sets.',
+        image: '/captures/samriti-textiles/categories.jpg',
+        width: 1200,
+        height: 367,
+        alt: 'Samriti Textiles category row: co-ord sets, kurta-palazzo sets, lehenga sets, Anarkali suit sets, sharara suit',
+      },
+      {
+        label: 'New arrivals',
+        title: 'Strong New-Arrival Discovery',
+        text: 'The homepage foregrounds new arrivals and multiple fashion categories for fast product exploration.',
+        image: '/captures/samriti-textiles/arrivals.jpg',
+        width: 1200,
+        height: 833,
+        alt: 'Samriti Textiles “New Arrivals” section with categories and product cards',
+      },
+      {
+        label: 'Trending looks',
+        title: 'Trend-Led Merchandising',
+        text: '“Trending Looks To Watch” gives selected products a stronger fashion-editorial presentation rather than relying only on a standard product grid.',
+        image: '/captures/samriti-textiles/trending.jpg',
+        width: 1200,
+        height: 667,
+        alt: 'Samriti Textiles “Trending Looks To Watch” carousel',
+      },
+      {
+        label: 'Shop by collection',
+        title: 'Collection-Based Shopping',
+        text: 'The “Shop By Collection” structure helps visitors browse by garment type instead of requiring product-by-product discovery.',
+        image: '/captures/samriti-textiles/collection.jpg',
+        width: 1200,
+        height: 1050,
+        alt: 'Samriti Textiles “Shop By Collection” grid: lehenga, co-ord, Anarkali, sharara, winter and palazzo sets',
+      },
+      {
+        label: 'Shop by looks',
+        title: 'Lifestyle and Styling Layer',
+        text: '“Shop By Looks” and editorial-style messaging add aspirational presentation beyond catalogue browsing.',
+        image: '/captures/samriti-textiles/looks.jpg',
+        width: 858,
+        height: 467,
+        alt: 'Samriti Textiles “Shop By Looks” section with styled outfit photography',
+      },
+      {
+        label: 'Campaign module',
+        title: 'Promotional Merchandising',
+        text: 'Seasonal promotional areas such as the current sale module give the storefront a strong campaign layer.',
+        image: '/captures/samriti-textiles/sale.jpg',
+        width: 1200,
+        height: 500,
+        alt: 'Samriti Textiles “Winter Sale is On!” promotional module',
+      },
+    ],
+  },
+};

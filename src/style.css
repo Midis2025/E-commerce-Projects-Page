@@ -1606,6 +1606,30 @@ h3 {
   overflow-wrap: break-word;
 }
 
+/* Title and label open the concept's internal presentation page. */
+.concept__name-link {
+  background: linear-gradient(currentColor, currentColor) 0 94% / 0 1px no-repeat;
+  transition: background-size 0.6s var(--ease-out);
+}
+
+.concept__name-link:hover {
+  background-size: 100% 1px;
+}
+
+.concept__label-link {
+  transition: color 0.3s var(--ease);
+}
+
+.concept__label-link:hover {
+  color: var(--accent-text);
+}
+
+/* Explore (internal) + View live site (external) stack as one action group. */
+.concept__live {
+  display: grid;
+  gap: 10px;
+}
+
 .concept__desc {
   max-width: 55ch;
   font-size: var(--body-size);

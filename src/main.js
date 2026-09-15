@@ -1,104 +1,36 @@
 import './style.css';
 import { site, concepts } from './config.js';
-
-/* ------------------------------------------------------------------
- * Utilities
- * ------------------------------------------------------------------ */
-
-const $ = (selector, root = document) => root.querySelector(selector);
-const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-const esc = (value = '') => String(value).replace(/[&<>"']/g, (c) => ESCAPES[c]);
-
-const pad = (n) => String(n).padStart(2, '0');
-
-/** Returns a normalised http(s) URL, or null if the value is empty / a placeholder / invalid. */
-function safeUrl(value) {
-  if (typeof value !== 'string') return null;
-  const url = value.trim();
-  if (!url || url === '#' || /^paste/i.test(url)) return null;
-  try {
-    const parsed = new URL(url, window.location.href);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : null;
-  } catch {
-    return null;
-  }
-}
-
-function displayUrl(href) {
-  const { host, pathname } = new URL(href);
-  return (host + pathname).replace(/\/$/, '');
-}
-
-function shortPath(href) {
-  const { host, pathname } = new URL(href);
-  return pathname === '/' ? host : pathname.replace(/\/$/, '');
-}
-
-const conceptById = (id) => concepts.find((c) => c.id === id) || null;
-
-/* ------------------------------------------------------------------
- * Icons (inline SVG, inherit currentColor)
- * ------------------------------------------------------------------ */
-
-const svg = (paths, size = 16) =>
-  `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 16 16" aria-hidden="true" focusable="false">${paths}</svg>`;
-
-const icon = {
-  external: svg('<path d="M4.5 11.5l7-7M5.75 4.5h5.75v5.75" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
-  down: svg('<path d="M8 2.5v11M3.75 9.25L8 13.5l4.25-4.25" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
-  up: svg('<path d="M8 13.5v-11M3.75 6.75L8 2.5l4.25 4.25" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
-  right: svg('<path d="M2.5 8h11M9.25 3.75L13.5 8l-4.25 4.25" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
-  check: svg('<path d="M3 8.5l3.25 3.25L13 5" fill="none" stroke="currentColor" stroke-width="1.6"/>'),
-  copy: svg('<rect x="5.5" y="5.5" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3 10.5v-8h8" fill="none" stroke="currentColor" stroke-width="1.3"/>'),
-  close: svg('<path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.4"/>'),
-  info: svg('<path d="M8 7v5M8 4.5v.5" fill="none" stroke="currentColor" stroke-width="1.6"/>'),
-  dash: svg('<path d="M4 8h8" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
-};
-
-/* ------------------------------------------------------------------
- * Shared button component
- *  - href    → external link (new tab), disabled if the URL is missing
- *  - anchor  → in-page link (e.g. "#review")
- *  - neither → <button>
- * ------------------------------------------------------------------ */
-
-function button({ label, variant = 'primary', href, anchor, iconHtml = '', iconClass = '', block = false, attrs = '' }) {
-  const classes = ['btn', `btn--${variant}`, block && 'btn--block'].filter(Boolean).join(' ');
-  const inner = `<span class="btn__label">${esc(label)}</span>${
-    iconHtml ? `<span class="btn__icon ${iconClass}">${iconHtml}</span>` : ''
-  }`;
-
-  if (href !== undefined) {
-    const url = safeUrl(href);
-    if (!url) {
-      return `<a class="${classes} is-disabled" role="link" aria-disabled="true" tabindex="0" data-disabled-link ${attrs}>
-        <span class="btn__label">${esc(label)}</span><span class="btn__note">Coming soon</span></a>`;
-    }
-    return `<a class="${classes}" href="${esc(url)}" target="_blank" rel="noopener noreferrer" ${attrs}>${inner}<span class="sr-only"> (opens in a new tab)</span></a>`;
-  }
-  if (anchor) return `<a class="${classes}" href="${esc(anchor)}" ${attrs}>${inner}</a>`;
-  return `<button type="button" class="${classes}" ${attrs}>${inner}</button>`;
-}
-
-/* ------------------------------------------------------------------
- * Media (screenshot with graceful fallback)
- * ------------------------------------------------------------------ */
-
-function media(concept, { className = '', alt = '', loading = 'lazy' } = {}) {
-  const src = typeof concept.previewImage === 'string' ? concept.previewImage.trim() : '';
-  return `<span class="media ${className} ${src ? '' : 'is-missing'}" data-media>
-    ${src ? `<img class="media__img" src="${esc(src)}" alt="${esc(alt)}" loading="${loading}" decoding="async" width="1440" height="2700" />` : ''}
-    <span class="media__fallback" aria-hidden="true">
-      <span class="media__fallback-num">${esc(concept.number)}</span>
-      <span class="media__fallback-name">${esc(concept.name)}</span>
-      <span class="media__fallback-note">Preview image coming soon</span>
-    </span>
-  </span>`;
-}
+import {
+  $,
+  $$,
+  esc,
+  pad,
+  safeUrl,
+  displayUrl,
+  shortPath,
+  conceptById,
+  conceptPath,
+  icon,
+  button,
+  media,
+  bindMediaFallbacks,
+  toast,
+  reducedMotion,
+  finePointer,
+  state,
+  readSelection,
+  storageKey,
+  configureSelection,
+  initModal,
+  modal,
+  startSelection,
+  confirmSelection,
+  copySelection,
+  closeModal,
+  handleModalKeys,
+  renderOverlays,
+  setupReveal,
+} from './shared.js';
 
 /* ------------------------------------------------------------------
  * Templates
@@ -220,18 +152,17 @@ function renderPageRow(page, index) {
     <span class="sr-only"> (opens in a new tab)</span></a></li>`;
 }
 
+/* The large browser preview opens the internal concept presentation. */
 function renderPreview(concept) {
   const url = safeUrl(concept.websiteUrl);
   const bar = `<span class="preview__bar" aria-hidden="true">
       <span class="preview__dots"><i></i><i></i><i></i></span>
       <span class="preview__url"><span>${url ? esc(displayUrl(url)) : 'Live link coming soon'}</span></span>
-      <span class="preview__open">${url ? `<span class="preview__open-text">Open</span>${icon.external}` : ''}</span>
+      <span class="preview__open"><span class="preview__open-text">Explore</span>${icon.right}</span>
     </span>`;
   const body = `${bar}<span class="preview__viewport">${media(concept, { alt: concept.previewAlt || `${concept.name} concept preview`, loading: 'eager' })}</span>`;
 
-  return url
-    ? `<a class="preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Open the ${esc(concept.name)} live concept (opens in a new tab)">${body}</a>`
-    : `<div class="preview">${body}</div>`;
+  return `<a class="preview" href="${esc(conceptPath(concept))}" aria-label="Explore the ${esc(concept.name)} concept presentation">${body}</a>`;
 }
 
 function renderConcept(concept, index) {
@@ -241,6 +172,7 @@ function renderConcept(concept, index) {
   const theme = concept.theme || 'light';
   const traits = (concept.traits || []).filter(Boolean);
   const pages = (concept.pages || []).filter((p) => p && p.name);
+  const path = conceptPath(concept);
 
   return `
   <section class="concept ${reversed ? 'concept--reverse' : ''} theme-${theme}" id="${esc(concept.id)}"
@@ -249,11 +181,11 @@ function renderConcept(concept, index) {
       <header class="concept__head">
         <div class="concept__kicker" data-reveal>
 
-          <span class="concept__label">${esc(concept.label)}</span>
+          <a class="concept__label concept__label-link" href="${esc(path)}" tabindex="-1" aria-hidden="true">${esc(concept.label)}</a>
           <span class="concept__rule" aria-hidden="true"></span>
           <span class="concept__badge">${icon.check}Selected direction</span>
         </div>
-        <h3 class="concept__name" id="${esc(concept.id)}-title" data-reveal>${esc(concept.name)}</h3>
+        <h3 class="concept__name" id="${esc(concept.id)}-title" data-reveal><a class="concept__name-link" href="${esc(path)}">${esc(concept.name)}</a></h3>
         <p class="concept__desc" data-reveal>${esc(concept.description)}</p>
         ${traits.length ? `<ul class="traits" aria-label="Design characteristics" data-reveal>${traits.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
       </header>
@@ -263,12 +195,15 @@ function renderConcept(concept, index) {
         <figcaption class="concept__caption">
 
           <span>${esc(concept.previewCaption || 'Homepage preview')}</span>
-          <span class="concept__caption-hint">Hover to scroll the page</span>
+          <span class="concept__caption-hint">Hover to scroll · Click to explore</span>
         </figcaption>
       </figure>
 
       <div class="concept__actions">
-        <div class="concept__live" data-reveal>${button({ label: 'View live concept', href: concept.websiteUrl, iconHtml: icon.external, iconClass: 'btn__icon--diag', block: true })}</div>
+        <div class="concept__live" data-reveal>
+          ${button({ label: 'Explore the concept', anchor: path, iconHtml: icon.right, block: true, attrs: `aria-label="Explore the ${esc(concept.name)} concept presentation"` })}
+          ${button({ label: 'View live concept', variant: 'secondary', href: concept.websiteUrl, iconHtml: icon.external, iconClass: 'btn__icon--diag', block: true })}
+        </div>
         ${
           pages.length
             ? `<div class="pages" data-reveal>
@@ -359,18 +294,6 @@ function renderFooter() {
   </footer>`;
 }
 
-function renderOverlays() {
-  return `
-  <div class="modal" data-modal hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc" tabindex="-1" data-modal-panel>
-      <button class="modal__close" type="button" aria-label="Close" data-modal-close>${icon.close}</button>
-      <div data-modal-content></div>
-    </div>
-  </div>
-  <div class="toasts" role="status" aria-live="polite" aria-atomic="false" data-toasts></div>`;
-}
-
 function render() {
   document.title = site.title || document.title;
   const bgImage = site.background?.image?.trim();
@@ -408,49 +331,8 @@ function render() {
 }
 
 /* ------------------------------------------------------------------
- * Selection state (localStorage)
+ * Selection UI (state + storage live in shared.js)
  * ------------------------------------------------------------------ */
-
-const storageKey = site.selection?.storageKey || 'design-review:selection';
-const state = { selected: readSelection() };
-
-function readSelection() {
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return null;
-    let id = null;
-    try {
-      const data = JSON.parse(raw);
-      id = typeof data === 'string' ? data : data?.id;
-    } catch {
-      id = raw;
-    }
-    if (conceptById(id)) return id;
-    // Stale or unknown value (e.g. a concept that has since been replaced): reset it.
-    window.localStorage.removeItem(storageKey);
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function writeSelection(id) {
-  try {
-    window.localStorage.setItem(storageKey, JSON.stringify({ id, selectedAt: new Date().toISOString() }));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function copyText(concept) {
-  const template = site.selection?.copyTemplate || 'Selected design direction:\nConcept {number} — {name}';
-  return template
-    .replaceAll('{number}', concept.number)
-    .replaceAll('{label}', concept.label)
-    .replaceAll('{name}', concept.name)
-    .replaceAll('{project}', site.brand?.project || '');
-}
 
 function applySelection() {
   const selected = conceptById(state.selected);
@@ -503,235 +385,6 @@ function applySelection() {
   $$('[data-when]').forEach((el) => {
     el.hidden = el.dataset.when !== (selected ? 'selected' : 'none');
   });
-}
-
-/* ------------------------------------------------------------------
- * Modal (focus-trapped, ESC + backdrop close, focus return)
- * ------------------------------------------------------------------ */
-
-const modal = {
-  el: null,
-  panel: null,
-  content: null,
-  trigger: null,
-  pendingId: null,
-  open: false,
-  hideTimer: 0,
-};
-
-const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-function modalConfirmMarkup(concept, previous) {
-  const change = Boolean(previous);
-  return `
-    <div class="modal__media">${media(concept, { loading: 'eager' })}</div>
-    <div class="modal__body">
-      <p class="modal__eyebrow">Concept ${esc(concept.number)}${change ? ' · Change of direction' : ''}</p>
-      <h2 class="modal__title" id="modal-title">${
-        change ? `Change your selected direction to <em>${esc(concept.name)}</em>?` : `You’ve selected <em>${esc(concept.name)}</em>.`
-      }</h2>
-      <p class="modal__text" id="modal-desc">${
-        change
-          ? `This replaces <strong>${esc(previous.name)}</strong> as your preferred direction. You can change it again at any time.`
-          : 'Confirm to save this as your preferred design direction. You can change it at any time.'
-      }</p>
-      <div class="modal__actions">
-        ${button({ label: 'Confirm selection', iconHtml: icon.check, attrs: 'data-modal-confirm' })}
-        ${button({ label: 'Cancel', variant: 'secondary', attrs: 'data-modal-close' })}
-      </div>
-    </div>`;
-}
-
-function modalConfirmedMarkup(concept) {
-  return `
-    <div class="modal__body modal__body--confirmed">
-      <span class="modal__seal" aria-hidden="true">${svg('<path d="M3 8.5l3.25 3.25L13 5" fill="none" stroke="currentColor" stroke-width="1.6"/>', 22)}</span>
-      <p class="modal__eyebrow">Selected direction</p>
-      <h2 class="modal__title" id="modal-title">Concept ${esc(concept.number)} — <em>${esc(concept.name)}</em></h2>
-      <p class="modal__text" id="modal-desc">Your choice is saved on this device. Copy it below to send your decision back — you can change direction at any time.</p>
-      <p class="modal__summary">${esc(copyText(concept))}</p>
-      <div class="modal__actions">
-        ${button({ label: 'Copy selection', iconHtml: icon.copy, attrs: 'data-copy' })}
-        ${button({ label: 'Done', variant: 'secondary', attrs: 'data-modal-close' })}
-      </div>
-    </div>`;
-}
-
-function setModalContent(markup) {
-  modal.content.innerHTML = markup;
-  bindMediaFallbacks(modal.content);
-}
-
-function openModal(trigger) {
-  modal.trigger = trigger || document.activeElement;
-  window.clearTimeout(modal.hideTimer);
-  modal.open = true;
-  modal.el.hidden = false;
-
-  const scrollbar = window.innerWidth - document.documentElement.clientWidth;
-  document.documentElement.style.setProperty('--scrollbar-gap', `${scrollbar}px`);
-  document.documentElement.classList.add('is-locked');
-  $$('[data-inertable]').forEach((el) => el.setAttribute('inert', ''));
-  closeMenu();
-
-  // Force a frame so the enter transition runs.
-  void modal.el.offsetWidth;
-  modal.el.classList.add('is-open');
-  focusFirstInModal();
-}
-
-function focusFirstInModal() {
-  const primary = $('[data-modal-confirm], [data-copy]', modal.content);
-  (primary || modal.panel).focus({ preventScroll: true });
-}
-
-function closeModal() {
-  if (!modal.open) return;
-  modal.open = false;
-  modal.pendingId = null;
-  modal.el.classList.remove('is-open');
-  $$('[data-inertable]').forEach((el) => el.removeAttribute('inert'));
-  document.documentElement.classList.remove('is-locked');
-
-  const finish = () => {
-    modal.el.hidden = true;
-    modal.content.innerHTML = '';
-  };
-  if (reducedMotion.matches) finish();
-  else modal.hideTimer = window.setTimeout(finish, 380);
-
-  const target = modal.trigger;
-  if (target && target.isConnected && typeof target.focus === 'function') target.focus({ preventScroll: true });
-}
-
-function handleModalKeys(event) {
-  if (!modal.open) return;
-  if (event.key === 'Escape') {
-    event.preventDefault();
-    closeModal();
-    return;
-  }
-  if (event.key !== 'Tab') return;
-
-  const focusables = $$(FOCUSABLE, modal.panel).filter((el) => el.offsetParent !== null || el === document.activeElement);
-  if (!focusables.length) {
-    event.preventDefault();
-    return;
-  }
-  const first = focusables[0];
-  const last = focusables[focusables.length - 1];
-  const active = document.activeElement;
-
-  if (event.shiftKey && (active === first || active === modal.panel || !modal.panel.contains(active))) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && (active === last || !modal.panel.contains(active))) {
-    event.preventDefault();
-    first.focus();
-  }
-}
-
-function startSelection(id, trigger) {
-  const concept = conceptById(id);
-  if (!concept) return;
-
-  if (state.selected === id) {
-    setModalContent(modalConfirmedMarkup(concept));
-  } else {
-    modal.pendingId = id;
-    setModalContent(modalConfirmMarkup(concept, conceptById(state.selected)));
-  }
-  openModal(trigger);
-}
-
-function confirmSelection() {
-  const concept = conceptById(modal.pendingId);
-  if (!concept) return;
-
-  state.selected = concept.id;
-  modal.pendingId = null;
-  const saved = writeSelection(concept.id);
-  applySelection();
-
-  setModalContent(modalConfirmedMarkup(concept));
-  focusFirstInModal();
-  toast(
-    saved ? `${concept.name} saved as your selected direction` : `${concept.name} selected (couldn’t save on this device)`,
-    saved ? 'success' : 'info',
-  );
-}
-
-/* ------------------------------------------------------------------
- * Clipboard
- * ------------------------------------------------------------------ */
-
-function legacyCopy(text) {
-  const area = document.createElement('textarea');
-  area.value = text;
-  area.setAttribute('readonly', '');
-  area.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-  document.body.append(area);
-  area.select();
-  let ok = false;
-  try {
-    ok = document.execCommand('copy');
-  } catch {
-    ok = false;
-  }
-  area.remove();
-  return ok;
-}
-
-async function copySelection(trigger) {
-  const concept = conceptById(state.selected);
-  if (!concept) {
-    toast('Select a direction first', 'info');
-    return;
-  }
-  const text = copyText(concept);
-  let ok = false;
-  try {
-    await navigator.clipboard.writeText(text);
-    ok = true;
-  } catch {
-    ok = legacyCopy(text);
-  }
-  // Keep focus inside the modal after the fallback textarea steals it.
-  if (trigger?.isConnected) trigger.focus({ preventScroll: true });
-
-  toast(ok ? 'Selection copied to clipboard' : 'Clipboard unavailable — please copy the text manually', ok ? 'success' : 'info');
-
-  if (ok && trigger) {
-    const label = $('.btn__label', trigger);
-    const iconEl = $('.btn__icon', trigger);
-    label.textContent = 'Copied';
-    iconEl.innerHTML = icon.check;
-    window.clearTimeout(trigger._resetTimer);
-    trigger._resetTimer = window.setTimeout(() => {
-      label.textContent = 'Copy selection';
-      iconEl.innerHTML = icon.copy;
-    }, 2000);
-  }
-}
-
-/* ------------------------------------------------------------------
- * Toasts
- * ------------------------------------------------------------------ */
-
-function toast(message, tone = 'success') {
-  const region = $('[data-toasts]');
-  const el = document.createElement('div');
-  el.className = `toast toast--${tone}`;
-  el.innerHTML = `<span class="toast__icon">${tone === 'success' ? icon.check : icon.info}</span><span>${esc(message)}</span>`;
-  region.append(el);
-
-  while (region.children.length > 2) region.firstElementChild.remove();
-
-  requestAnimationFrame(() => el.classList.add('is-in'));
-  window.setTimeout(() => {
-    el.classList.remove('is-in');
-    window.setTimeout(() => el.remove(), reducedMotion.matches ? 0 : 450);
-  }, 3400);
 }
 
 /* ------------------------------------------------------------------
@@ -820,41 +473,11 @@ function setupScrollEffects() {
 }
 
 /* ------------------------------------------------------------------
- * Reveal animations
- * ------------------------------------------------------------------ */
-
-function setupReveal() {
-  const els = $$('[data-reveal]');
-  if (reducedMotion.matches || !('IntersectionObserver' in window)) {
-    els.forEach((el) => el.classList.add('is-in'));
-    return;
-  }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries
-        .filter((e) => e.isIntersecting)
-        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left)
-        .forEach((entry, i) => {
-          const el = entry.target;
-          el.style.transitionDelay = `${Math.min(i, 6) * 80}ms`;
-          el.classList.add('is-in');
-          el.addEventListener('transitionend', () => (el.style.transitionDelay = ''), { once: true });
-          observer.unobserve(el);
-        });
-    },
-    { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
-  );
-  els.forEach((el) => observer.observe(el));
-}
-
-/* ------------------------------------------------------------------
  * Depth: subtle pointer tilt on the concept previews.
  * Desktop mouse only; off for touch and reduced motion. Work happens
  * once per pointer move (one rAF), never in a continuous loop.
  * ------------------------------------------------------------------ */
 
-const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 const depthEnabled = () => finePointer.matches && !reducedMotion.matches && window.innerWidth >= 1024;
 
 function setupDepth() {
@@ -918,14 +541,6 @@ function setupDepth() {
   reducedMotion.addEventListener('change', reset);
   finePointer.addEventListener('change', reset);
   window.addEventListener('resize', reset, { passive: true });
-}
-
-function bindMediaFallbacks(root = document) {
-  $$('[data-media] img', root).forEach((img) => {
-    const fail = () => img.closest('[data-media]').classList.add('is-missing');
-    if (img.complete && img.naturalWidth === 0 && img.currentSrc) fail();
-    img.addEventListener('error', fail, { once: true });
-  });
 }
 
 /* ------------------------------------------------------------------
@@ -999,11 +614,17 @@ function bindEvents() {
     if (e.matches) closeMenu();
   });
 
-  // Keep multiple open tabs in sync.
-  window.addEventListener('storage', (event) => {
-    if (event.key !== storageKey) return;
+  // Keep open tabs — and pages restored from the back/forward cache after
+  // a selection on a concept page — in sync.
+  const sync = () => {
     state.selected = readSelection();
     applySelection();
+  };
+  window.addEventListener('storage', (event) => {
+    if (event.key === storageKey) sync();
+  });
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) sync();
   });
 }
 
@@ -1013,10 +634,8 @@ function bindEvents() {
 
 function init() {
   render();
-
-  modal.el = $('[data-modal]');
-  modal.panel = $('[data-modal-panel]');
-  modal.content = $('[data-modal-content]');
+  initModal();
+  configureSelection({ apply: applySelection, beforeOpen: () => closeMenu() });
 
   applySelection();
   bindMediaFallbacks();
@@ -1024,6 +643,11 @@ function init() {
   setupScrollEffects();
   setupReveal();
   setupDepth();
+
+  // Returning from a concept page (/#alinkriti, /#review): the sections are
+  // rendered by script, so land on the target once it exists.
+  const target = window.location.hash && document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+  if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start', behavior: 'instant' }));
 
   // Start the hero entrance once fonts are ready (with a short cap so it never stalls).
   const start = () => document.body.classList.add('is-loaded');
