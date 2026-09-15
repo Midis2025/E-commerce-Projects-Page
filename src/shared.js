@@ -64,6 +64,18 @@ export const brandLogo = () => {
     : '<span class="brand__glyph" aria-hidden="true"></span>';
 };
 
+/**
+ * Header logo: the full wordmark (`site.brand.wordmark`) on its chip, or logo mark + name if none is set.
+ * `withName` adds the site name beside the wordmark (homepage header); the image is then decorative,
+ * otherwise its alt text names the site.
+ */
+export const brandWordmark = ({ withName = false } = {}) => {
+  const w = site.brand?.wordmark;
+  if (!w?.src) return `${brandLogo()}<span class="brand__mark">${esc(site.brand.mark)}</span>`;
+  const img = `<img class="brand__wordmark" src="${esc(w.src)}" alt="${withName ? '' : esc(site.brand.mark)}" width="${w.width}" height="${w.height}" decoding="async" />`;
+  return `<span class="brand__chip">${img}</span>${withName ? `<span class="brand__mark brand__name">${esc(site.brand.mark)}</span>` : ''}`;
+};
+
 export const icon = {
   external: svg('<path d="M4.5 11.5l7-7M5.75 4.5h5.75v5.75" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
   down: svg('<path d="M8 2.5v11M3.75 9.25L8 13.5l4.25-4.25" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
@@ -75,6 +87,8 @@ export const icon = {
   close: svg('<path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.4"/>'),
   info: svg('<path d="M8 7v5M8 4.5v.5" fill="none" stroke="currentColor" stroke-width="1.6"/>'),
   dash: svg('<path d="M4 8h8" fill="none" stroke="currentColor" stroke-width="1.35"/>'),
+  sun: svg('<circle cx="8" cy="8" r="2.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.6v1.7M8 12.7v1.7M1.6 8h1.7M12.7 8h1.7M3.5 3.5l1.2 1.2M11.3 11.3l1.2 1.2M3.5 12.5l1.2-1.2M11.3 4.7l1.2-1.2" fill="none" stroke="currentColor" stroke-width="1.5"/>'),
+  moon: svg('<path d="M13.3 10.1A5.7 5.7 0 0 1 5.9 2.7a5.7 5.7 0 1 0 7.4 7.4z" fill="none" stroke="currentColor" stroke-width="1.5"/>'),
 };
 
 /* ------------------------------------------------------------------

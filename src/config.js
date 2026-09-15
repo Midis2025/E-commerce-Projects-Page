@@ -30,14 +30,23 @@ export const site = {
   brand: {
     /** Small wordmark, top-left. */
     mark: 'Midis Portfolio',
-    /** Logo mark shown before the wordmark (header + footer). Remove to show the default square glyph. */
+    /** Logo mark shown before the name in the footer. Remove to show the default square glyph. */
     logo: { src: '/images/midis-icon.png', width: 128, height: 128 },
+    /** Full logo for the header (white + orange, shown on a dark chip over light headers). */
+    wordmark: { src: '/images/midis-logo.png', width: 640, height: 205 },
     /** Optional project name shown next to the mark (desktop). Leave empty to hide. */
     project: '',
   },
 
   /** Header status pill. */
   status: 'Client Review',
+
+  /**
+   * Light / dark mode toggle (review homepage). Light is the default.
+   * The key is also read by the inline script in index.html so the saved
+   * theme applies before first paint — keep the two in sync.
+   */
+  theme: { storageKey: 'midis-portfolio:theme' },
 
   nav: [
     { label: 'Project', target: 'project' },

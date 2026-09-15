@@ -2975,6 +2975,13 @@ html[data-concept='neocloudz'] {
   }
 }
 
+/* Concept pages with dark headers: the wordmark sits directly on the header */
+.cp--dark .brand__chip,
+.cp--gulf .brand__chip {
+  background: transparent;
+  box-shadow: none;
+}
+
 .cp--gulf .cmenu__panel {
   --cmenu-bg: rgba(15, 27, 45, 0.97);
   --cmenu-border: rgba(216, 198, 165, 0.2);

@@ -39,6 +39,7 @@ import {
   renderConceptMenu,
   setupConceptMenu,
   brandLogo,
+  brandWordmark,
 } from './shared.js';
 
 const concept = conceptById(document.documentElement.dataset.concept);
@@ -275,8 +276,7 @@ function renderHeader() {
   <header class="cp-header" data-header data-inertable>
     <div class="page-container cp-header__inner">
       <a class="brand" href="/">
-        ${brandLogo()}
-        <span class="brand__mark">${esc(site.brand.mark)}</span>
+        ${brandWordmark()}
       </a>
       <nav class="cp-nav" aria-label="Design review">
         <ul class="cp-nav__list">

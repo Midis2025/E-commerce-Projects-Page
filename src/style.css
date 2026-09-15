@@ -687,6 +687,57 @@ h3 {
   background: var(--accent);
 }
 
+/* Header logo: the full Midis wordmark (white + orange) on a small dark chip,
+   so its white letters read on the light header. Same header height. */
+.brand__chip {
+  display: inline-flex;
+  flex: none; /* the logo never shrinks or distorts, whatever sits beside it */
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #0e0e0e;
+  box-shadow:
+    0 6px 16px rgba(20, 18, 15, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    background-color 0.35s var(--ease),
+    box-shadow 0.35s var(--ease);
+}
+
+.brand__wordmark {
+  display: block;
+  width: auto;
+  height: 22px;
+}
+
+/* "Midis Portfolio" beside the logo (homepage header). On the narrowest phones it is
+   hidden visually but kept for screen readers, so the logo link always has a name.
+   Breakpoint: the measured width (~454px) below which the name can no longer keep
+   the header's 24px gap to the controls, plus a small margin for font-rendering
+   variance. */
+@media (max-width: 459px) {
+  .header .brand__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 760px) {
+  .brand__chip {
+    height: 32px;
+    padding: 0 10px;
+  }
+
+  .brand__wordmark {
+    height: 19px;
+  }
+}
+
 /* Logo image (site.brand.logo) — takes the square glyph's place in the same brand row */
 .brand__logo {
   display: block;
@@ -2720,6 +2771,86 @@ h3 {
 }
 
 /* ------------------------------------------------------------------
+   Light / dark toggle — a small pill switch in the header
+   ------------------------------------------------------------------ */
+
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.theme-toggle__track {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 22px;
+  border: 1px solid rgba(21, 21, 21, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.34);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition:
+    background-color 0.35s var(--ease),
+    border-color 0.35s var(--ease);
+}
+
+.theme-toggle:hover .theme-toggle__track {
+  border-color: var(--fg);
+}
+
+.theme-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--fg);
+  color: var(--bg);
+  transition:
+    transform 0.45s var(--ease-out),
+    background-color 0.35s var(--ease);
+}
+
+.theme-toggle[aria-checked='true'] .theme-toggle__thumb {
+  transform: translateX(18px);
+}
+
+.theme-toggle__thumb .icon {
+  width: 10px;
+  height: 10px;
+}
+
+.theme-toggle__sun,
+.theme-toggle__moon {
+  display: grid;
+}
+
+.theme-toggle__moon,
+.theme-toggle[aria-checked='true'] .theme-toggle__sun {
+  display: none;
+}
+
+.theme-toggle[aria-checked='true'] .theme-toggle__moon {
+  display: grid;
+}
+
+/* Theme change cross-fade (View Transitions; skipped for reduced motion in JS) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+}
+
+/* ------------------------------------------------------------------
    Concepts menu — one toggle + glass panel (homepage sub-nav and
    concept page headers). Scales to any number of concepts:
    4 columns on desktop, 2 on tablet, a full-width list on phones.
@@ -2989,6 +3120,241 @@ h3 {
   .cmenu__item {
     min-height: 60px;
   }
+}
+
+/* ------------------------------------------------------------------
+   Dark mode (review homepage) — html[data-theme="dark"].
+   Tokens flip to the dark values already used by .theme-dark; the few
+   surfaces with fixed light colours get dark equivalents. Images and
+   project previews themselves are untouched. Light mode is unchanged.
+   ------------------------------------------------------------------ */
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --ink: #efeae1;
+  --muted: #b3ada3;
+  --bg: #141311;
+  --fg: #efeae1;
+  --fg-muted: #b3ada3;
+  --line: rgba(243, 239, 231, 0.13);
+  --line-strong: rgba(243, 239, 231, 0.3);
+  --accent-text: #dd9d74;
+  --accent-deep: #d0895e;
+  --hover-tint: rgba(243, 239, 231, 0.05);
+  --frame-bar: #22211f;
+  --frame-url: rgba(255, 255, 255, 0.06);
+  --placeholder: #252422;
+  --cmenu-bg: rgba(24, 23, 21, 0.97);
+  --cmenu-border: rgba(255, 255, 255, 0.08);
+}
+
+/* Background: same image and motion, darker veil */
+html[data-theme='dark'] .global-background-overlay {
+  background: linear-gradient(135deg, rgba(18, 17, 15, 0.8), rgba(18, 17, 15, 0.72));
+}
+
+html[data-theme='dark'] .global-background-light {
+  background:
+    radial-gradient(circle at 20% 25%, rgba(190, 125, 80, 0.14), transparent 36%),
+    radial-gradient(circle at 80% 65%, rgba(255, 255, 255, 0.04), transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(118, 130, 144, 0.08), transparent 34%);
+}
+
+@media (max-width: 699px) {
+  html[data-theme='dark'] .global-background-overlay {
+    background: linear-gradient(135deg, rgba(18, 17, 15, 0.84), rgba(18, 17, 15, 0.78));
+  }
+}
+
+/* Glass */
+html[data-theme='dark'] .glass-soft {
+  --glass-bg: rgba(30, 28, 25, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+  --glass-fallback: rgba(26, 24, 21, 0.9);
+}
+
+html[data-theme='dark'] .glass-strong {
+  --glass-bg: linear-gradient(135deg, rgba(36, 34, 30, 0.74), rgba(26, 24, 21, 0.6));
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --glass-fallback: rgba(26, 24, 21, 0.94);
+}
+
+html[data-theme='dark'] .step {
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html[data-theme='dark'] .step:hover {
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* Buttons */
+html[data-theme='dark'] .btn--primary {
+  --btn-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+html[data-theme='dark'] .btn--primary:hover {
+  --btn-bg: var(--accent-soft);
+  --btn-border: var(--accent-soft);
+  --btn-fg: #151515;
+}
+
+html[data-theme='dark'] .btn--secondary {
+  --btn-bg: rgba(255, 255, 255, 0.07);
+  --btn-border: rgba(255, 255, 255, 0.26);
+  --btn-shadow: 0 8px 20px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme='dark'] .btn--secondary:hover {
+  --btn-bg: rgba(255, 255, 255, 0.13);
+  --btn-border: rgba(255, 255, 255, 0.6);
+}
+
+html[data-theme='dark'] .btn.is-selected {
+  --btn-bg: rgba(184, 110, 69, 0.14);
+  --btn-border: var(--accent);
+  --btn-fg: var(--accent-text);
+}
+
+html[data-theme='dark'] .btn.is-selected:hover {
+  --btn-bg: rgba(184, 110, 69, 0.2);
+  --btn-border: var(--accent);
+  --btn-fg: var(--accent-text);
+}
+
+/* Header, project bar, menus */
+html[data-theme='dark'] .header {
+  background: rgba(20, 19, 17, 0.8);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+html[data-theme='dark'] .header.is-scrolled {
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme='dark'] .header.menu-open {
+  background: rgba(20, 19, 17, 0.92);
+}
+
+html[data-theme='dark'] .subnav {
+  background: rgba(20, 19, 17, 0.8);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme='dark'] .mobile-menu {
+  background: rgba(22, 21, 19, 0.96);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 30px 50px -30px rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme='dark'] .pill {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+}
+
+html[data-theme='dark'] .theme-toggle__track {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+/* In dark mode the wordmark sits directly on the header (the chip keeps its size: no shift) */
+html[data-theme='dark'] .brand__chip {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Concept showcases, previews, review list */
+html[data-theme='dark'] .traits li {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme='dark'] .preview {
+  --frame-depth: 0 30px 80px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+  --frame-highlight: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+}
+
+html[data-theme='dark'] .preview__dots i {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+
+html[data-theme='dark'] .preview__url {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme='dark'] .preview__viewport {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme='dark'] .review {
+  --placeholder: #252422;
+}
+
+html[data-theme='dark'] .compare__thumb {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 14px 30px rgba(0, 0, 0, 0.35),
+    0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html[data-theme='dark'] .compare__item:hover .compare__thumb {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.16),
+      0 20px 40px rgba(0, 0, 0, 0.4),
+      0 4px 10px rgba(0, 0, 0, 0.22);
+  }
+}
+
+/* Selection dialog */
+html[data-theme='dark'] .modal__panel {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(32, 30, 27, 0.96), rgba(24, 23, 21, 0.94));
+  box-shadow:
+    0 50px 100px -30px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme='dark'] .modal__close {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme='dark'] .modal__close:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme='dark'] .modal__summary {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme='dark'] .modal__seal {
+  color: #151515;
+}
+
+html[data-theme='dark'] .skip-link {
+  background: #efeae1;
+  color: #151515;
 }
 
 /* ------------------------------------------------------------------

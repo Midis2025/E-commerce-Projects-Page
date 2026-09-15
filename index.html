@@ -16,6 +16,10 @@
     />
     <script>
       document.documentElement.classList.add('js');
+      // Apply a saved dark-mode choice before first paint (key: site.theme.storageKey in src/config.js).
+      try {
+        if (localStorage.getItem('midis-portfolio:theme') === 'dark') document.documentElement.dataset.theme = 'dark';
+      } catch (e) {}
     </script>
   </head>
   <body>

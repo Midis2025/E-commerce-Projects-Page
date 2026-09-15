@@ -34,6 +34,7 @@ import {
   setupConceptMenu,
   setConceptMenuCurrent,
   brandLogo,
+  brandWordmark,
 } from './shared.js';
 
 /* ------------------------------------------------------------------
@@ -57,12 +58,16 @@ function renderHeader() {
   <header class="header" data-header data-inertable>
     <div class="page-container header__inner">
       <a class="brand" href="#project">
-        ${brandLogo()}
-        <span class="brand__mark">${esc(brand.mark)}</span>
+        ${brandWordmark({ withName: true })}
         ${brand.project ? `<span class="brand__divider" aria-hidden="true">/</span><span class="brand__project">${esc(brand.project)}</span>` : ''}
       </a>
       <div class="header__right">
         <nav aria-label="Primary"><ul class="nav">${links}</ul></nav>
+        <button class="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Dark mode" data-theme-toggle>
+          <span class="theme-toggle__track" aria-hidden="true">
+            <span class="theme-toggle__thumb"><span class="theme-toggle__sun">${icon.sun}</span><span class="theme-toggle__moon">${icon.moon}</span></span>
+          </span>
+        </button>
         ${status ? `<span class="pill"><span class="pill__dot" aria-hidden="true"></span>${esc(status)}</span>` : ''}
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
           <span class="menu-toggle__label">Menu</span><span class="menu-toggle__lines" aria-hidden="true"></span>
@@ -623,6 +628,45 @@ function bindEvents() {
 }
 
 /* ------------------------------------------------------------------
+ * Light / dark mode — tokens switch via html[data-theme="dark"].
+ * The inline script in index.html applies a saved choice before paint.
+ * ------------------------------------------------------------------ */
+
+const themeKey = site.theme?.storageKey || 'midis-portfolio:theme';
+const THEME_COLOR = { light: '#F3EFE7', dark: '#141311' };
+
+function applyTheme(mode) {
+  const dark = mode === 'dark';
+  const root = document.documentElement;
+  if (dark) root.dataset.theme = 'dark';
+  else delete root.dataset.theme;
+  $('[data-theme-toggle]')?.setAttribute('aria-checked', String(dark));
+  $('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[dark ? 'dark' : 'light']);
+}
+
+function setupThemeToggle() {
+  const toggle = $('[data-theme-toggle]');
+  if (!toggle) return;
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+
+  toggle.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    try {
+      window.localStorage.setItem(themeKey, next);
+    } catch {
+      /* preference just won't persist */
+    }
+    // Cross-fade between themes where supported; instant otherwise or with reduced motion.
+    if (document.startViewTransition && !reducedMotion.matches) document.startViewTransition(() => applyTheme(next));
+    else applyTheme(next);
+  });
+
+  window.addEventListener('storage', (event) => {
+    if (event.key === themeKey) applyTheme(event.newValue === 'dark' ? 'dark' : 'light');
+  });
+}
+
+/* ------------------------------------------------------------------
  * Boot
  * ------------------------------------------------------------------ */
 
@@ -634,6 +678,7 @@ function init() {
   applySelection();
   bindMediaFallbacks();
   bindEvents();
+  setupThemeToggle();
   setupConceptMenu();
   setupScrollEffects();
   setupReveal();
