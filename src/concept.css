@@ -721,6 +721,24 @@ html[data-concept='neocloudz'] {
 .cp-hero__title {
   line-height: 0.9;
   overflow-wrap: break-word;
+  /* Oversized display letters rise ~0.06em above their line box: keep that
+     much breathing room below the kicker (scales with the title size). */
+  padding-top: clamp(4px, 0.8vw, 14px);
+}
+
+/* Give tall letters room without moving the layout (each padding is cancelled
+   by an equal negative margin):
+   - .line is the reveal mask (overflow: hidden) — more room above the letters;
+   - .line__inner may paint a background-clip: text gradient, which only draws
+     inside its own box — extend that box above and below the letters. */
+.cp-hero__title .line {
+  padding-top: 0.24em;
+  margin-top: -0.24em;
+}
+
+.cp-hero__title .line__inner {
+  padding-block: 0.2em 0.16em;
+  margin-block: -0.2em -0.16em;
 }
 
 .cp-tags {
