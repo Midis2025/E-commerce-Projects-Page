@@ -36,11 +36,27 @@ import {
   handleModalKeys,
   renderOverlays,
   setupReveal,
+  renderConceptMenu,
+  setupConceptMenu,
 } from './shared.js';
 
 const concept = conceptById(document.documentElement.dataset.concept);
 const detail = concept ? conceptDetails[concept.id] : null;
-const THEMES = ['alinkriti', 'samriti', 'country', 'gulf'];
+const THEMES = ['alinkriti', 'samriti', 'country', 'gulf', 'midis', 'usdc', 'digipowerx', 'neocloudz'];
+
+/* NeoCloudz atmosphere: an abstract cluster map — a grid of GPU cells, some lit. */
+const clusterCells = () => {
+  let cells = '';
+  for (let r = 0; r < 7; r++) {
+    for (let c = 0; c < 12; c++) {
+      const lit = (r * 7 + c * 3) % 5 === 0;
+      cells += `<rect x="${c * 40 + 4}" y="${r * 40 + 4}" width="30" height="30" rx="3" ${
+        lit ? 'fill="#2DFF7A" fill-opacity="0.32"' : 'fill="none" stroke="#2DFF7A" stroke-opacity="0.16"'
+      } />`;
+    }
+  }
+  return cells;
+};
 const theme = THEMES.includes(detail?.theme) ? detail.theme : 'alinkriti';
 
 /* Phones get the capture instead of a live iframe: a small nested frame traps touch scrolling. */
@@ -187,6 +203,63 @@ const ATMOSPHERE = {
       </svg>
     </div>
     <div class="cp-atmos__layer cp-atmos__pane" style="--depth:0.03"><span></span></div>`,
+
+  // MIDIS: black stage, an outlined wordmark, an orange orb, a floating glass card.
+  midis: `
+    <div class="cp-atmos__base"></div>
+    <div class="cp-atmos__layer cp-atmos__word" style="--depth:0.04"><span>MIDIS</span></div>
+    <div class="cp-atmos__layer cp-atmos__orb" style="--depth:0.08"><span></span></div>
+    <div class="cp-atmos__layer cp-atmos__card" style="--depth:0.12"><span></span></div>`,
+
+  // U.S. Data Centers: technical grid, a wireframe infrastructure stack, rack light.
+  usdc: `
+    <div class="cp-atmos__base"></div>
+    <div class="cp-atmos__grid"></div>
+    <div class="cp-atmos__layer cp-atmos__stack" style="--depth:0.06">
+      <svg viewBox="0 0 400 430" fill="none">
+        <g stroke="#3DAEFF" stroke-width="1">
+          <path d="M200 40L360 120L200 200L40 120Z" opacity="0.6" />
+          <path d="M200 110L360 190L200 270L40 190Z" opacity="0.42" />
+          <path d="M200 180L360 260L200 340L40 260Z" opacity="0.3" />
+          <path d="M200 250L360 330L200 410L40 330Z" opacity="0.2" />
+          <path d="M40 120V330M360 120V330M200 200V410" opacity="0.16" />
+        </g>
+        <g fill="#3DAEFF">
+          <circle cx="200" cy="120" r="3" opacity="0.9" /><circle cx="150" cy="120" r="2" opacity="0.6" />
+          <circle cx="250" cy="120" r="2" opacity="0.6" /><circle cx="200" cy="95" r="2" opacity="0.6" />
+          <circle cx="200" cy="145" r="2" opacity="0.6" />
+        </g>
+      </svg>
+    </div>
+    <div class="cp-atmos__layer cp-atmos__racks" style="--depth:0.1"><span></span></div>`,
+
+  // DigiPowerX: black industrial ground, yellow hazard trim, an isometric site drawing.
+  digipowerx: `
+    <div class="cp-atmos__base"></div>
+    <div class="cp-atmos__hazard"></div>
+    <div class="cp-atmos__layer cp-atmos__iso" style="--depth:0.06">
+      <svg viewBox="0 0 520 380" fill="none">
+        <g stroke="#F4F5F7" stroke-width="0.9" opacity="0.22">
+          <path d="M260 60L480 170L260 280L40 170Z" />
+          <path d="M40 170V200L260 310L480 200V170" />
+          <path d="M150 150L210 120L270 150L210 180ZM150 150V210L210 240V180M270 150V210L210 240" />
+          <path d="M290 175L350 145L410 175L350 205ZM290 175V225L350 255V205M410 175V225L350 255" />
+        </g>
+        <g stroke="#F5C518" stroke-width="1.1" opacity="0.6">
+          <path d="M210 120V70M350 145V95M210 70L350 95" />
+          <circle cx="210" cy="66" r="4" /><circle cx="350" cy="91" r="4" />
+        </g>
+      </svg>
+    </div>
+    <div class="cp-atmos__layer cp-atmos__beam" style="--depth:0.1"><span></span></div>`,
+
+  // NeoCloudz: terminal scanlines and a lit GPU cluster map.
+  neocloudz: `
+    <div class="cp-atmos__base"></div>
+    <div class="cp-atmos__scan"></div>
+    <div class="cp-atmos__layer cp-atmos__cluster" style="--depth:0.05">
+      <svg viewBox="0 0 484 284">${clusterCells()}</svg>
+    </div>`,
 };
 
 /* ------------------------------------------------------------------
@@ -194,16 +267,7 @@ const ATMOSPHERE = {
  * ------------------------------------------------------------------ */
 
 function renderHeader() {
-  const links = concepts
-    .map(
-      (c) => `<li><a class="cp-nav__link" href="${esc(conceptPath(c))}" data-cp-nav="${esc(c.id)}" ${c.id === concept.id ? 'aria-current="page"' : ''}>
-        <span class="cp-nav__num">${esc(c.number)}</span>
-        <span class="cp-nav__name">${esc(c.name)}</span>
-        <span class="cp-nav__dot" aria-hidden="true"></span>
-        <span class="sr-only" data-cp-nav-state></span>
-      </a></li>`,
-    )
-    .join('');
+  const menu = renderConceptMenu({ variant: 'detail', activeId: concept.id, stateAttr: 'data-cp-nav', menuId: 'cp-concept-menu' });
 
   return `
   <div class="progress" aria-hidden="true"><span class="progress__bar" data-progress></span></div>
@@ -215,7 +279,7 @@ function renderHeader() {
       </a>
       <nav class="cp-nav" aria-label="Design review">
         <ul class="cp-nav__list">
-          ${links}
+          <li class="cp-nav__menu">${menu}</li>
           <li><a class="cp-nav__link" href="/#review"><span class="cp-nav__name cp-nav__name--always">Review</span></a></li>
         </ul>
       </nav>
@@ -419,6 +483,7 @@ function renderBuild() {
         <p class="cp-build__text" data-cp-reveal>Every link opens the real ${esc(concept.name)} website in a new tab, so this presentation stays open.</p>
       </div>
       <ul class="cp-build__list" data-cp-reveal>${rows}</ul>
+      ${detail.pagesNote ? `<p class="cp-build__note" data-cp-reveal>${icon.info}<span>${esc(detail.pagesNote)}</span></p>` : ''}
     </div>
   </section>`;
 }
@@ -430,7 +495,7 @@ function renderDecision() {
   return `
   <section class="cp-decide" id="decide" aria-labelledby="cp-decide-title">
     <div class="page-container">
-      <div class="cp-decide__panel ${detail.panel === 'dark' ? 'theme-dark' : 'glass glass-strong'}" data-cp-reveal>
+      <div class="cp-decide__panel ${{ dark: 'theme-dark', plain: '' }[detail.panel] ?? 'glass glass-strong'}" data-cp-reveal>
         <div class="cp-decide__copy">
           <p class="cp-eyebrow">Your decision</p>
           <h2 class="cp-decide__title" id="cp-decide-title">Ready to choose?</h2>
@@ -471,7 +536,7 @@ function renderFooter() {
 
 function render() {
   $('#app').innerHTML = `
-  <div class="cp cp--${theme}" data-cp>
+  <div class="cp cp--${theme} ${detail.tone === 'dark' ? 'cp--dark' : ''}" data-cp>
     <div class="cp-atmos cp-atmos--${theme}" aria-hidden="true" data-atmos>${ATMOSPHERE[theme]}</div>
     <div class="cp-content">
       ${renderHeader()}
@@ -800,6 +865,7 @@ function init() {
   configureSelection({ apply: applySelection });
   applySelection();
   bindEvents();
+  setupConceptMenu();
   setupFrame();
   bindImageFallbacks();
   setupScroll();

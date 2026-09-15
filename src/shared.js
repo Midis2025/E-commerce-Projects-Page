@@ -279,6 +279,7 @@ function openModal(trigger) {
   document.documentElement.style.setProperty('--scrollbar-gap', `${scrollbar}px`);
   document.documentElement.classList.add('is-locked');
   $$('[data-inertable]').forEach((el) => el.setAttribute('inert', ''));
+  closeConceptMenu();
   hooks.beforeOpen();
 
   // Force a frame so the enter transition runs.
@@ -419,6 +420,120 @@ export async function copySelection(trigger) {
       iconEl.innerHTML = icon.copy;
     }, 2000);
   }
+}
+
+/* ------------------------------------------------------------------
+ * Concepts menu — one scalable control for any number of concepts,
+ * shared by the homepage sub-nav and every concept page header.
+ *  variant 'home'   → items jump to the homepage sections (#id)
+ *  variant 'detail' → items open each concept page
+ *  stateAttr        → the page's existing selection/active hook
+ *                     ('data-subnav' on the homepage, 'data-cp-nav' on concept pages)
+ * ------------------------------------------------------------------ */
+
+const caret = svg('<path d="M4 6.25l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.35"/>');
+
+const currentMarkup = (c) =>
+  c ? `<span class="cmenu__current-num">${esc(c.number)}</span><span class="cmenu__current-name">${esc(c.name)}</span>` : '';
+
+export function renderConceptMenu({ variant = 'home', activeId = null, stateAttr = 'data-subnav', menuId = 'concept-menu' } = {}) {
+  const active = conceptById(activeId);
+  const items = concepts
+    .map((c) => {
+      const href = variant === 'home' ? `#${c.id}` : conceptPath(c);
+      const current = c.id === activeId ? `aria-current="${variant === 'home' ? 'true' : 'page'}"` : '';
+      return `<li><a class="cmenu__item" href="${esc(href)}" ${stateAttr}="${esc(c.id)}" data-cmenu-item ${current}>
+        <span class="cmenu__num">${esc(c.number)}</span>
+        <span class="cmenu__text">
+          <span class="cmenu__name">${esc(c.name)}</span>
+          ${c.traits?.length ? `<span class="cmenu__traits">${c.traits.map(esc).join(' · ')}</span>` : ''}
+        </span>
+        <span class="cmenu__chosen" aria-hidden="true"></span>
+        <span class="cmenu__arrow" aria-hidden="true">${icon.right}</span>
+        <span class="sr-only" ${stateAttr}-state></span>
+      </a></li>`;
+    })
+    .join('');
+
+  return `<div class="cmenu ${active ? 'has-current' : ''}" data-cmenu>
+    <button type="button" class="cmenu__toggle" aria-expanded="false" aria-controls="${esc(menuId)}" data-cmenu-toggle>
+      <span class="cmenu__label">Concepts</span>
+      <span class="cmenu__current" data-cmenu-current>${currentMarkup(active)}</span>
+      <span class="cmenu__caret" aria-hidden="true">${caret}</span>
+    </button>
+    <div class="cmenu__panel" id="${esc(menuId)}" data-cmenu-panel hidden>
+      <p class="cmenu__head"><span>All concepts</span><span>${pad(concepts.length)}</span></p>
+      <ul class="cmenu__grid">${items}</ul>
+    </div>
+  </div>`;
+}
+
+/** Homepage: reflect the section in view on the toggle. */
+export function setConceptMenuCurrent(id) {
+  const menu = $('[data-cmenu]');
+  if (!menu) return;
+  const c = conceptById(id);
+  menu.classList.toggle('has-current', Boolean(c));
+  $('[data-cmenu-current]', menu).innerHTML = currentMarkup(c);
+}
+
+let closeConceptMenu = () => {};
+
+export function setupConceptMenu() {
+  const menu = $('[data-cmenu]');
+  if (!menu) return;
+  const toggle = $('[data-cmenu-toggle]', menu);
+  const panel = $('[data-cmenu-panel]', menu);
+  let hideTimer = 0;
+  const isOpen = () => menu.classList.contains('is-open');
+
+  const open = () => {
+    window.clearTimeout(hideTimer);
+    panel.hidden = false;
+    void panel.offsetWidth;
+    menu.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+  };
+  const close = ({ focus = false } = {}) => {
+    if (!isOpen()) return;
+    menu.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    hideTimer = window.setTimeout(() => (panel.hidden = true), reducedMotion.matches ? 0 : 280);
+    if (focus) toggle.focus();
+  };
+  closeConceptMenu = close;
+
+  toggle.addEventListener('click', () => (isOpen() ? close() : open()));
+  panel.addEventListener('click', (event) => {
+    if (event.target.closest('[data-cmenu-item]')) close();
+  });
+  document.addEventListener('click', (event) => {
+    if (!menu.contains(event.target)) close();
+  });
+  menu.addEventListener('focusout', (event) => {
+    if (event.relatedTarget && !menu.contains(event.relatedTarget)) close();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isOpen()) close({ focus: true });
+  });
+  // Arrow keys move through the items; Down from the toggle opens and enters the panel.
+  menu.addEventListener('keydown', (event) => {
+    const keys = ['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'Home', 'End'];
+    if (!keys.includes(event.key)) return;
+    const items = $$('[data-cmenu-item]', panel);
+    if (event.target === toggle) {
+      if (event.key !== 'ArrowDown') return;
+      event.preventDefault();
+      open();
+      items[0]?.focus();
+      return;
+    }
+    const i = items.indexOf(document.activeElement);
+    if (i < 0) return;
+    event.preventDefault();
+    const next = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: items.length - 1 }[event.key];
+    items[(next + items.length) % items.length].focus();
+  });
 }
 
 /* ------------------------------------------------------------------

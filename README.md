@@ -57,14 +57,21 @@ straight to the live store in a new tab.
 | Route entry files                  | `concepts/<id>/index.html` (listed in `vite.config.js`)   |
 | Screenshots                        | `public/captures/<id>/` (full page + section crops)       |
 
-- **Live preview.** `embeddable` in `conceptDetails` decides it:
-  - AlinKriti and Samriti Textiles (Shopify) send `X-Frame-Options: DENY` / `frame-ancestors 'none'`, so they
+- **Live preview.** `embeddable` in `conceptDetails` decides it (framing checked in a real browser):
+  - AlinKriti, Samriti Textiles and DigiPowerX block framing (`X-Frame-Options` / `frame-ancestors`), so they
     show a scrollable full-page capture with **Open full website**.
-  - Country Kids and Gulf Connect allow framing, so the real site loads in the 3D frame on tablet and desktop.
-    Phones get the capture instead (a small nested frame traps touch scrolling), and so does any live site
-    that fails to load.
-- **Themes.** `theme` picks the visual world (`alinkriti`, `samriti`, `country`, `gulf`); `panel: 'dark'`
-  gives the decision panel a deep ground. All themes share the same markup and 3D frame.
+  - Country Kids, Gulf Connect, MIDIS, U.S. Data Centers and NeoCloudz allow framing, so the real site loads
+    in the 3D frame on tablet and desktop. Phones get the capture instead (a small nested frame traps touch
+    scrolling), and so does any live site that fails to load. The homepage never loads iframes.
+- **Themes.** `theme` picks the visual world (`alinkriti`, `samriti`, `country`, `gulf`, `midis`, `usdc`,
+  `digipowerx`, `neocloudz`); `tone: 'dark'` puts the whole page on a dark ground (the selection dialog stays
+  light); `panel` sets the decision panel (`dark`, `plain` or default glass). All themes share the same markup,
+  3D frame and buttons; a route's `index.html` can load the site's own typeface.
+- **Page links** only use URLs that open directly. `pagesNote` adds a line under them — e.g. MIDIS, whose
+  inner sections only work from inside its homepage, links the homepage alone.
+- **Concepts menu.** One shared control (`renderConceptMenu` in `src/shared.js`) replaces the concept strip on
+  the homepage sub-nav and every concept page header: a glass panel with 4 columns on desktop, 2 on tablet and
+  a full-width list on phones. It marks the concept in view (or the page you're on) and the selected one.
 - **Adding a concept.** Add it to `concepts` and `conceptDetails`, then copy one of the
   `concepts/<id>/index.html` files and change its `data-concept` attribute. The homepage, review list,
   navigation, "next concept" link and build inputs all pick it up from the data.

@@ -55,9 +55,9 @@ export const site = {
   hero: {
     eyebrow: 'Website Design Review',
     /** Each item starts on a new line and wraps naturally. All lines share one style. */
-    heading: [{ text: 'Four directions.' }, { text: 'One final experience.' }],
+    heading: [{ text: 'Eight directions.' }, { text: 'One final experience.' }],
     intro:
-      'Explore all four proposed website concepts below. Review the layouts, interactions and individual page experiences, then choose the direction that best represents the brand.',
+      'Explore all eight proposed website concepts below. Review the layouts, interactions and individual page experiences, then choose the direction that best represents the brand.',
     cta: 'Begin the review',
     /** Small key/value details beside the intro. Remove any you don't need. */
     meta: [
@@ -65,7 +65,7 @@ export const site = {
       { label: 'Scope', value: 'Homepage and key pages' },
     ],
     steps: [
-      { number: '01', title: 'Concepts', text: 'Four curated design directions.' },
+      { number: '01', title: 'Concepts', text: 'Eight curated design directions.' },
       { number: '02', title: 'Explore', text: 'Browse each live build, page by page.' },
       { number: '03', title: 'Select', text: 'Confirm the direction to develop.' },
     ],
@@ -73,12 +73,12 @@ export const site = {
 
   conceptsIntro: {
     eyebrow: 'The Concepts',
-    heading: 'Four proposed directions, each presented as a live, browsable build.',
+    heading: 'Eight proposed directions, each presented as a live, browsable build.',
   },
 
   review: {
     eyebrow: 'Review',
-    heading: 'Seen all four directions?',
+    heading: 'Seen all eight directions?',
     text: 'Review the individual pages and interactions before confirming the direction you would like to develop further.',
   },
 
@@ -92,7 +92,7 @@ export const site = {
 
   footer: {
     note: 'Prepared for client review.',
-    tagline: 'Four directions. One final build.',
+    tagline: 'Eight directions. One final build.',
   },
 
   selection: {
@@ -178,6 +178,76 @@ export const concepts = [
       { name: 'Contact', url: 'https://www.gulfconnectconsultancy.com/contact' },
     ],
   },
+  {
+    id: 'midis',
+    number: '05',
+    label: 'Concept Five',
+    name: 'MIDIS',
+    description:
+      'A design and digital growth agency presented through a bold, dark, visual-first homepage. Web design and development, graphic design, SEO and Google & Meta ads are brought together as one connected offer.',
+    traits: ['Digital Strategy', 'Creative', 'Growth'],
+    websiteUrl: 'https://www.midis.in/',
+    previewImage: '/previews/midis.jpg',
+    previewAlt: 'MIDIS — homepage screenshot',
+    // Only the homepage resolves as a direct link (other routes return 404 when opened directly).
+    pages: [{ name: 'Homepage', url: 'https://www.midis.in/' }],
+  },
+  {
+    id: 'us-data-centers',
+    number: '06',
+    label: 'Concept Six',
+    name: 'U.S. Data Centers',
+    description:
+      'Enterprise-scale AI infrastructure presented with technical clarity. Deployment speed, power, cooling and GPU-ready architecture lead a dark, data-rich interface built around high-density compute.',
+    traits: ['AI Infrastructure', 'Data Centers', 'Deployment'],
+    websiteUrl: 'https://www.usdatacenters.ai/',
+    previewImage: '/previews/us-data-centers.jpg',
+    previewAlt: 'U.S. Data Centers — homepage screenshot',
+    pages: [
+      { name: 'Homepage', url: 'https://www.usdatacenters.ai/' },
+      { name: 'Data Centers', url: 'https://www.usdatacenters.ai/data-center' },
+      { name: 'ARMS', url: 'https://www.usdatacenters.ai/arms' },
+      { name: 'Use Cases', url: 'https://www.usdatacenters.ai/use-cases' },
+    ],
+  },
+  {
+    id: 'digipowerx',
+    number: '07',
+    label: 'Concept Seven',
+    name: 'DigiPowerX',
+    description:
+      'Energy, data centers and bare-metal GPU compute told as one vertically integrated story. A black-and-yellow industrial identity carries the journey from owned power to live AI infrastructure.',
+    traits: ['Energy', 'Data Centers', 'AI Compute'],
+    websiteUrl: 'https://www.digipowerx.com/',
+    previewImage: '/previews/digipowerx.jpg',
+    previewAlt: 'DigiPowerX — homepage screenshot',
+    pages: [
+      { name: 'Homepage', url: 'https://www.digipowerx.com/' },
+      { name: 'About', url: 'https://www.digipowerx.com/about' },
+      { name: 'Energy', url: 'https://www.digipowerx.com/energy' },
+      { name: 'Data Centers', url: 'https://www.digipowerx.com/data-centers' },
+      { name: 'Investors', url: 'https://www.digipowerx.com/investors' },
+    ],
+  },
+  {
+    id: 'neocloudz',
+    number: '08',
+    label: 'Concept Eight',
+    name: 'NeoCloudz',
+    description:
+      'A GPU cloud presented as a live cluster terminal. Blackwell-class compute, workload-led solutions and developer tooling sit inside a dark, green-lit interface that feels operational from the first screen.',
+    traits: ['GPU Cloud', 'AI Infrastructure', 'Compute'],
+    websiteUrl: 'https://www.neocloudz.com/',
+    previewImage: '/previews/neocloudz.jpg',
+    previewAlt: 'NeoCloudz — homepage screenshot',
+    pages: [
+      { name: 'Homepage', url: 'https://www.neocloudz.com/' },
+      { name: 'Products', url: 'https://www.neocloudz.com/products' },
+      { name: 'Solutions', url: 'https://www.neocloudz.com/solution' },
+      { name: 'About', url: 'https://www.neocloudz.com/about' },
+      { name: 'GPU as a Service', url: 'https://www.neocloudz.com/gpu-as-a-service' },
+    ],
+  },
 ];
 
 /**
@@ -187,9 +257,12 @@ export const concepts = [
  *  Keyed by concept `id`. Name, number, live URL and page links
  *  come from `concepts` above; this adds the presentation layer.
  *
- *  theme       Visual world of the page:
- *              'alinkriti' | 'samriti' | 'country' | 'gulf'.
- *  panel       'dark' gives the decision panel a deep ground.
+ *  theme       Visual world of the page: 'alinkriti' | 'samriti' |
+ *              'country' | 'gulf' | 'midis' | 'usdc' | 'digipowerx' | 'neocloudz'.
+ *  tone        'dark' puts the whole page on a dark ground (for dark sites).
+ *  panel       Decision panel ground: 'dark', 'plain' (theme styles it) or
+ *              default glass.
+ *  pagesNote   Optional line under the page links.
  *  embeddable  true only if the live site allows being shown in an
  *              iframe (checked September 2026):
  *              - AlinKriti, Samriti: `X-Frame-Options: DENY` and
@@ -486,6 +559,270 @@ export const conceptDetails = {
         width: 1200,
         height: 750,
         alt: 'Gulf Connect “Regional Perspective. Global Market Standards.” section',
+      },
+    ],
+  },
+
+  midis: {
+    theme: 'midis',
+    tone: 'dark',
+    panel: 'dark',
+    themeColor: '#0A0A0A',
+    titleLines: ['MIDIS'],
+    tagline: 'An integrated digital experience bringing creative, technology and performance marketing into one brand system.',
+    tags: ['Digital', 'Creative', 'Growth'],
+    embeddable: true,
+    capture: { src: '/captures/midis/full.jpg', width: 1200, height: 10833, alt: 'Capture of the MIDIS homepage' },
+    pagesNote: 'The other MIDIS sections open from the homepage’s own navigation; their direct URLs don’t load on their own, so only the homepage is linked here.',
+    strengths: [
+      {
+        label: 'Positioning',
+        title: 'End-to-End Digital Positioning',
+        text: 'The brand presents web development, creative, content and marketing as one connected digital capability.',
+        image: '/captures/midis/hero.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'MIDIS homepage hero with the MIDIS wordmark',
+      },
+      {
+        label: 'Services',
+        title: 'Strong Service Breadth',
+        text: 'Web design and development, graphic design, content, video, SEO, email, social media and Google & Meta ads create a broad full-service proposition.',
+        image: '/captures/midis/services.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'MIDIS services section: web designing and web development',
+      },
+      {
+        label: 'Visual identity',
+        title: 'Visual-First Agency Identity',
+        text: 'The brand uses bold digital presentation to make creative and technology capabilities feel connected.',
+        image: '/captures/midis/visual.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'MIDIS homepage visuals below the hero',
+      },
+      {
+        label: 'Performance + creative',
+        title: 'Performance + Creative',
+        text: 'Organic growth, SEO and advertising capabilities sit alongside design and content rather than being separated from them.',
+        image: '/captures/midis/growth.jpg',
+        width: 1200,
+        height: 833,
+        alt: 'MIDIS “Why choose MIDIS for your success” section',
+      },
+      {
+        label: 'Web offering',
+        title: 'Conversion-Focused Web Offering',
+        text: 'Website development is positioned around responsive experiences designed to support business outcomes.',
+        image: '/captures/midis/web.jpg',
+        width: 1200,
+        height: 708,
+        alt: 'MIDIS web development service section',
+      },
+    ],
+  },
+
+  'us-data-centers': {
+    theme: 'usdc',
+    tone: 'dark',
+    panel: 'dark',
+    themeColor: '#04070F',
+    titleLines: ['U.S. Data', 'Centers'],
+    tagline: 'AI-ready infrastructure presented through speed, scale, power and next-generation data center engineering.',
+    tags: ['AI Infrastructure', 'Data Centers', 'Deployment'],
+    embeddable: true,
+    capture: { src: '/captures/us-data-centers/full.jpg', width: 1200, height: 8503, alt: 'Full-page capture of the U.S. Data Centers homepage' },
+    strengths: [
+      {
+        label: 'Proposition',
+        title: 'Immediate Infrastructure Proposition',
+        text: 'The homepage clearly positions the company around deploying AI infrastructure in months rather than years.',
+        image: '/captures/us-data-centers/deploy.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'USDC homepage hero: “Deploy AI Infrastructure in Months Not Years”',
+      },
+      {
+        label: 'Performance',
+        title: 'Performance-Led Storytelling',
+        text: 'Power capacity, deployment speed, design standards and AI readiness are surfaced prominently.',
+        image: '/captures/us-data-centers/performance.jpg',
+        width: 1200,
+        height: 583,
+        alt: 'USDC “Engineered for performance. Built for efficiency.” section',
+      },
+      {
+        label: 'Infrastructure stack',
+        title: 'Complete Infrastructure Stack',
+        text: 'Power, cooling, networking, GPU compute and AI applications are presented as one connected infrastructure system.',
+        image: '/captures/us-data-centers/stack.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'USDC “From Power to AI Compute” infrastructure stack',
+      },
+      {
+        label: 'Visualisation',
+        title: 'Strong Technical Visualisation',
+        text: 'Cooling telemetry, infrastructure architecture and deployment diagrams make complex infrastructure more tangible.',
+        image: '/captures/us-data-centers/telemetry.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'USDC DCIM telemetry and closed-loop cooling telemetry section',
+      },
+      {
+        label: 'AI-specific',
+        title: 'AI-Specific Positioning',
+        text: 'The design is built around high-density GPU workloads rather than generic enterprise data centers.',
+        image: '/captures/us-data-centers/ai.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'USDC “Built for AI infrastructure excellence” section',
+      },
+      {
+        label: 'Future-ready',
+        title: 'Future-Ready Architecture',
+        text: 'Blackwell, Grace Blackwell and future accelerator infrastructure create a strong next-generation narrative.',
+        image: '/captures/us-data-centers/future.jpg',
+        width: 1200,
+        height: 833,
+        alt: 'USDC “Chip-agnostic. Architecture-ready.” section with Blackwell, Grace Blackwell and Vera Rubin',
+      },
+    ],
+  },
+
+  digipowerx: {
+    theme: 'digipowerx',
+    tone: 'dark',
+    panel: 'plain',
+    themeColor: '#050505',
+    titleLines: ['Digi', 'PowerX'],
+    tagline: 'A vertically integrated infrastructure story connecting energy, data centers and bare-metal AI compute.',
+    tags: ['Energy', 'Data Centers', 'AI Compute'],
+    embeddable: false,
+    capture: { src: '/captures/digipowerx/full.jpg', width: 1200, height: 9325, alt: 'Full-page capture of the DigiPowerX homepage' },
+    strengths: [
+      {
+        label: 'Vertical integration',
+        title: 'Strong Vertical-Integration Story',
+        text: 'The website connects power generation, substations, data centers and GPU compute under one infrastructure narrative.',
+        image: '/captures/digipowerx/integration.jpg',
+        width: 1200,
+        height: 717,
+        alt: 'DigiPowerX “Built from the ground up. Owned at every layer.” section',
+      },
+      {
+        label: 'Operating model',
+        title: 'Clear Three-Layer Operating Model',
+        text: 'Own the energy source, build the data centers and operate the GPU clusters creates an easy-to-understand structure.',
+        image: '/captures/digipowerx/model.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'DigiPowerX layered infrastructure diagram',
+      },
+      {
+        label: 'NeoCloudz',
+        title: 'NeoCloudz Integration',
+        text: 'The GPU platform is presented as the compute layer built on top of DigiPowerX-owned infrastructure.',
+        image: '/captures/digipowerx/neocloudz.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'DigiPowerX “Meet Neo Cloudz” section',
+      },
+      {
+        label: 'Facility depth',
+        title: 'Technical Infrastructure Depth',
+        text: 'Power, cooling, network fabric, physical security and facility specifications are given substantial visual weight.',
+        image: '/captures/digipowerx/specs.jpg',
+        width: 1200,
+        height: 958,
+        alt: 'DigiPowerX “Full-stack facility specifications” section',
+      },
+      {
+        label: 'AI / HPC',
+        title: 'High-Density AI Positioning',
+        text: 'The design consistently frames the company around AI/HPC infrastructure rather than traditional hosting.',
+        image: '/captures/digipowerx/density.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'DigiPowerX “Your hardware, our infrastructure” section',
+      },
+      {
+        label: 'Site to compute',
+        title: 'Site-to-Compute Journey',
+        text: 'The “Site & Power → Substation → Data Center → GPU Deployment → NeoCloudz Live” sequence explains the business model visually.',
+        image: '/captures/digipowerx/journey.jpg',
+        width: 1200,
+        height: 583,
+        alt: 'DigiPowerX “From site to live infra” sequence',
+      },
+    ],
+  },
+
+  neocloudz: {
+    theme: 'neocloudz',
+    tone: 'dark',
+    panel: 'dark',
+    themeColor: '#0A0F0A',
+    titleLines: ['NeoCloudz'],
+    tagline: 'A high-performance GPU cloud experience built around AI compute, infrastructure visibility and developer control.',
+    tags: ['GPU Cloud', 'AI Compute', 'Blackwell'],
+    embeddable: true,
+    capture: { src: '/captures/neocloudz/full.jpg', width: 1200, height: 10217, alt: 'Full-page capture of the NeoCloudz homepage' },
+    strengths: [
+      {
+        label: 'Compute positioning',
+        title: 'Immediate Compute Positioning',
+        text: 'The homepage immediately establishes NeoCloudz around AI compute and GPU infrastructure.',
+        image: '/captures/neocloudz/compute.jpg',
+        width: 1200,
+        height: 667,
+        alt: 'NeoCloudz homepage hero: “Deploy in 60 Seconds. Compute Starts Here.”',
+      },
+      {
+        label: 'Live system',
+        title: 'Live-System Visual Language',
+        text: 'Cluster telemetry, terminal-style components and system metrics make the platform feel operational rather than conceptual.',
+        image: '/captures/neocloudz/system.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'NeoCloudz cluster terminal interface with system metrics',
+      },
+      {
+        label: 'GPU products',
+        title: 'GPU-Centric Product Discovery',
+        text: 'Blackwell, Grace Blackwell and future GPU architectures are presented as clear compute products.',
+        image: '/captures/neocloudz/gpus.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'NeoCloudz GPU product cards: Blackwell, Grace Blackwell, Vera Rubin',
+      },
+      {
+        label: 'Workloads',
+        title: 'Lifecycle-Based Solutions',
+        text: 'Training, inference, prototyping, rendering and other workloads are organised around real AI use cases.',
+        image: '/captures/neocloudz/lifecycle.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'NeoCloudz “Optimized for Every AI and HPC Workload” section',
+      },
+      {
+        label: 'Own stack',
+        title: 'Own-Stack Infrastructure Story',
+        text: 'The platform connects compute with DigiPowerX and U.S. Data Centers rather than presenting itself as a detached hyperscaler layer.',
+        image: '/captures/neocloudz/ownstack.jpg',
+        width: 1200,
+        height: 750,
+        alt: 'NeoCloudz “Own-Stack Infrastructure. No Middlemen.” section',
+      },
+      {
+        label: 'Developer experience',
+        title: 'Strong Developer Experience',
+        text: 'GPU provisioning, bare metal, APIs, Kubernetes, notebooks and cluster workflows reinforce technical credibility.',
+        image: '/captures/neocloudz/developer.jpg',
+        width: 1200,
+        height: 583,
+        alt: 'NeoCloudz “Simple Deployment Model”: provision in minutes, API & dashboard, standard images',
       },
     ],
   },

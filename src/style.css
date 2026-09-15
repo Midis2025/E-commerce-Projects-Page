@@ -1220,7 +1220,8 @@ h3 {
   list-style: none;
 }
 
-.subnav__list li {
+/* Direct children only: the Concepts menu nests its own list inside the bar */
+.subnav__list > li {
   display: flex;
 }
 
@@ -1309,22 +1310,10 @@ h3 {
   color: var(--accent-text);
 }
 
-/* Four concepts + Review: drop the "Selected direction" label first, then
-   show numbers only for the sections you're not on (names stay for screen readers). */
-@media (max-width: 1439px) {
+/* Tablet: keep the selected name, drop its label, so long names always fit */
+@media (max-width: 1099px) {
   .subnav__selection-label {
     display: none;
-  }
-}
-
-@media (min-width: 761px) and (max-width: 1179px) {
-  .subnav__link:not([aria-current='true']) .subnav__name:not(.subnav__name--always) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
   }
 }
 
@@ -1342,11 +1331,11 @@ h3 {
     gap: 0;
   }
 
-  .subnav__list li {
+  .subnav__list > li {
     flex: 1;
   }
 
-  .subnav__list li + li {
+  .subnav__list > li + li {
     border-left: 1px solid var(--line);
   }
 
@@ -1360,19 +1349,10 @@ h3 {
     text-transform: uppercase;
   }
 
-  /* Phones: a compact numbered navigator (01 02 03 04 Review) */
-  .subnav__name:not(.subnav__name--always) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-
-  .subnav__num {
-    font-size: 12px;
-    color: inherit;
+  /* Phones: the Concepts menu and Review share the bar */
+  .subnav__menu .cmenu,
+  .subnav__menu .cmenu__toggle {
+    width: 100%;
   }
 }
 
@@ -2728,6 +2708,278 @@ h3 {
 
 .toast--info .toast__icon {
   background: #3a3834;
+}
+
+/* ------------------------------------------------------------------
+   Concepts menu — one toggle + glass panel (homepage sub-nav and
+   concept page headers). Scales to any number of concepts:
+   4 columns on desktop, 2 on tablet, a full-width list on phones.
+   Its bar is a backdrop root, so the panel uses opacity, not blur.
+   ------------------------------------------------------------------ */
+
+.subnav__inner {
+  position: relative;
+}
+
+.cmenu {
+  display: flex;
+}
+
+.cmenu__toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--fg-muted);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.3s var(--ease);
+}
+
+.cmenu__toggle::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1.5px;
+  background: var(--fg);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.55s var(--ease-out);
+}
+
+.cmenu__toggle:hover,
+.cmenu.is-open .cmenu__toggle {
+  color: var(--fg);
+}
+
+.cmenu.has-current .cmenu__toggle::after,
+.cmenu.is-open .cmenu__toggle::after {
+  transform: scaleX(1);
+}
+
+.cmenu__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.cmenu__current {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cmenu__current:empty {
+  display: none;
+}
+
+.cmenu__current-num {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
+}
+
+.cmenu__current-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fg);
+}
+
+.cmenu__caret {
+  display: grid;
+  place-items: center;
+}
+
+.cmenu__caret .icon {
+  transition: transform 0.4s var(--ease-out);
+}
+
+.cmenu.is-open .cmenu__caret .icon {
+  transform: rotate(180deg);
+}
+
+.cmenu__panel {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 8px);
+  left: var(--pad);
+  right: var(--pad);
+  max-height: calc(100vh - var(--cmenu-offset, 150px));
+  max-height: calc(100dvh - var(--cmenu-offset, 150px));
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: clamp(14px, 1.8vw, 26px);
+  border: 1px solid var(--cmenu-border, rgba(255, 255, 255, 0.6));
+  border-radius: 20px;
+  background: var(--cmenu-bg, rgba(247, 244, 238, 0.97));
+  box-shadow:
+    0 40px 80px -30px rgba(20, 18, 15, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: var(--fg);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 0.28s var(--ease),
+    transform 0.4s var(--ease-out);
+}
+
+.cmenu.is-open .cmenu__panel {
+  opacity: 1;
+  transform: none;
+}
+
+.cmenu__head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  padding: 0 10px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.cmenu__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px clamp(12px, 1.6vw, 24px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 700px) {
+  .cmenu__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .cmenu__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.cmenu__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 16px;
+  align-items: center;
+  column-gap: 12px;
+  min-height: 68px;
+  padding: 12px 10px;
+  border-radius: 12px;
+  color: var(--fg);
+  transition: background-color 0.3s var(--ease);
+}
+
+.cmenu__item:hover,
+.cmenu__item:focus-visible {
+  background: var(--hover-tint);
+}
+
+.cmenu__item:focus-visible {
+  outline-offset: -2px;
+}
+
+.cmenu__item[aria-current] {
+  background: var(--cmenu-active, color-mix(in srgb, var(--accent) 13%, transparent));
+}
+
+.cmenu__num {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--accent-text);
+}
+
+.cmenu__text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cmenu__name {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.cmenu__traits {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+  color: var(--fg-muted);
+}
+
+.cmenu__chosen {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: scale(0);
+  transition: transform 0.45s var(--ease-out);
+}
+
+.cmenu__item.is-chosen .cmenu__chosen {
+  transform: scale(1);
+}
+
+.cmenu__arrow {
+  display: grid;
+  place-items: center;
+  color: var(--fg-muted);
+  transition: transform 0.45s var(--ease-out);
+}
+
+.cmenu__item:hover .cmenu__arrow {
+  transform: translateX(3px);
+}
+
+.subnav {
+  --cmenu-offset: calc(var(--header-h) + var(--subnav-h) + 24px);
+}
+
+@media (max-width: 760px) {
+  .cmenu__toggle {
+    justify-content: center;
+    gap: 9px;
+  }
+
+  .cmenu__current-name {
+    display: none;
+  }
+
+  .cmenu__panel {
+    top: calc(100% + 6px);
+    border-radius: 16px;
+  }
+
+  .cmenu__item {
+    min-height: 60px;
+  }
 }
 
 /* ------------------------------------------------------------------

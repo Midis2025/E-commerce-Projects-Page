@@ -30,6 +30,9 @@ import {
   handleModalKeys,
   renderOverlays,
   setupReveal,
+  renderConceptMenu,
+  setupConceptMenu,
+  setConceptMenuCurrent,
 } from './shared.js';
 
 /* ------------------------------------------------------------------
@@ -113,24 +116,13 @@ function renderHero() {
   </section>`;
 }
 
+/* Concepts sit behind one scalable menu; the bar itself never grows with the concept count. */
 function renderSubnav() {
-  const items = concepts
-    .map(
-      (c) => `<li><a class="subnav__link" href="#${esc(c.id)}" data-subnav="${esc(c.id)}">
-        <span class="subnav__num">${esc(c.number)}</span>
-        <span class="subnav__name">${esc(c.name)}</span>
-        <span class="subnav__short">Concept ${esc(c.number)}</span>
-        <span class="subnav__chosen" aria-hidden="true"></span>
-        <span class="sr-only" data-subnav-state></span>
-      </a></li>`,
-    )
-    .join('');
-
   return `
   <nav class="subnav" aria-label="Concepts" data-inertable>
     <div class="page-container subnav__inner">
       <ul class="subnav__list">
-        ${items}
+        <li class="subnav__menu">${renderConceptMenu({ variant: 'home', stateAttr: 'data-subnav', menuId: 'concept-menu' })}</li>
         <li><a class="subnav__link" href="#review" data-subnav="review"><span class="subnav__name subnav__name--always">Review</span></a></li>
       </ul>
       <p class="subnav__selection"><span class="subnav__selection-label">Selected direction</span><span class="subnav__selection-name" data-selection-name></span></p>
@@ -458,6 +450,7 @@ function setupScrollEffects() {
       if (on) link.setAttribute('aria-current', 'true');
       else link.removeAttribute('aria-current');
     });
+    setConceptMenuCurrent(conceptById(id) ? id : null);
   };
 
   const sections = [$('#project'), ...concepts.map((c) => document.getElementById(c.id)), $('#review')].filter(Boolean);
@@ -640,6 +633,7 @@ function init() {
   applySelection();
   bindMediaFallbacks();
   bindEvents();
+  setupConceptMenu();
   setupScrollEffects();
   setupReveal();
   setupDepth();
