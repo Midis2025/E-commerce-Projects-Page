@@ -958,7 +958,6 @@ h3 {
    The right column starts at the same x-position in every section.
    ------------------------------------------------------------------ */
 
-.hero__grid,
 .concepts-intro__inner,
 .review__head,
 .final__inner {
@@ -967,7 +966,6 @@ h3 {
   row-gap: var(--block);
 }
 
-.hero__grid > *,
 .concepts-intro__inner > *,
 .review__head > *,
 .final__inner > * {
@@ -975,7 +973,6 @@ h3 {
 }
 
 @media (min-width: 1024px) {
-  .hero__grid,
   .concepts-intro__inner,
   .review__head,
   .final__inner {
@@ -986,39 +983,46 @@ h3 {
 }
 
 /* ------------------------------------------------------------------
-   Hero
+   Hero — editorial split. Lede on the left, architectural plate on the
+   right, one glass panel anchored to the plate. The left column keeps
+   the global container edge, so it lines up with every section below;
+   the plate runs wider than the shared right column because it is an
+   image, not text.
    ------------------------------------------------------------------ */
 
 .hero {
-  padding-block: var(--block) var(--section-y-sm);
+  padding-block: clamp(20px, 3vw, 52px) var(--section-y-sm);
 }
 
-.hero__top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 24px;
-  padding-bottom: 18px;
-  margin-bottom: var(--section-y-sm);
-  border-bottom: 1px solid var(--line);
+.hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: clamp(34px, 5vw, 52px);
 }
 
-.hero__status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--fg-muted);
+.hero__grid > * {
+  min-width: 0;
+}
+
+.hero__lede {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+}
+
+/* Label → heading */
+.hero__eyebrow {
+  margin-bottom: clamp(20px, 1.8vw, 28px);
 }
 
 .hero__title {
-  font-size: clamp(4.5rem, 7vw, 7.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
+  /* Capped so 'Experiences That Drive' clears the lede column at every width:
+     it needs 835px at 84px, and the column tops out at 733px once the
+     container hits its 1600px max. */
+  font-size: clamp(3rem, 4.5vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
 }
 
 .line {
@@ -1034,39 +1038,118 @@ h3 {
   display: block;
 }
 
-/* Glass information panel; bleeds outward so its text stays on the grid. */
-.hero__aside {
-  display: grid;
-  gap: 28px;
-  align-content: end;
-  margin-inline: calc(-1 * var(--panel-bleed));
-  padding: clamp(22px, 2.4vw, 34px) max(var(--panel-bleed), 20px);
-  border-radius: clamp(18px, 1.8vw, 24px);
-}
-
+/* Heading → paragraph */
 .hero__intro {
+  margin-top: clamp(28px, 2.4vw, 38px);
   font-size: var(--body-size);
-  line-height: 1.6;
-  max-width: 58ch;
+  line-height: 1.62;
+  max-width: 46ch;
+  color: var(--fg-muted);
+  text-wrap: pretty;
 }
 
-.hero__meta {
-  display: grid;
+/* Paragraph → CTA */
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px clamp(24px, 2.2vw, 36px);
+  margin-top: clamp(32px, 2.8vw, 44px);
+}
+
+.hero__actions .btn {
+  min-width: 240px;
+}
+
+.hero__status {
+  display: flex;
+  align-items: center;
   gap: 10px;
   margin: 0;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* ---- Architectural plate ---------------------------------------- */
+
+.hero__visual {
+  position: relative;
+  align-self: stretch;
+}
+
+.hero__plate {
+  position: relative;
+  /* Ratio-driven until the desktop split gives the column a real height.
+     Never combine this with height:100% — the two make the size circular. */
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow:
+    0 40px 80px -44px rgba(20, 18, 15, 0.5),
+    0 2px 8px rgba(20, 18, 15, 0.05);
+}
+
+.hero__plate-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* A different crop from the fixed page background, so the two read as one
+     material seen twice rather than a repeat. */
+  object-position: 72% 50%;
+  filter: saturate(1.1) contrast(1.06);
+  transform: scale(1.04);
+}
+
+/* Warm floor under the panel so its text keeps contrast over any crop. */
+.hero__plate-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(32, 27, 21, 0.46), rgba(32, 27, 21, 0) 60%),
+    linear-gradient(115deg, rgba(184, 110, 69, 0.14), rgba(255, 255, 255, 0) 58%);
+  pointer-events: none;
+}
+
+/* ---- Glass information panel ------------------------------------ */
+
+.hero__panel {
+  --glass-bg: linear-gradient(135deg, rgba(252, 250, 246, 0.76), rgba(246, 242, 235, 0.6));
+  --glass-blur: 18px;
+  --glass-saturate: 125%;
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 20px 44px -22px rgba(20, 18, 15, 0.45);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+  --glass-fallback: rgba(249, 246, 241, 0.94);
+  position: absolute;
+  right: clamp(14px, 1.4vw, 22px);
+  bottom: clamp(14px, 1.4vw, 22px);
+  left: clamp(14px, 1.4vw, 22px);
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: clamp(18px, 1.5vw, 24px) clamp(18px, 1.6vw, 26px);
+  border-radius: 12px;
   font-size: 14px;
 }
 
 .hero__meta-row {
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr);
+  grid-template-columns: 96px minmax(0, 1fr);
   column-gap: 20px;
   align-items: baseline;
 }
 
-.hero__meta dt {
+.hero__meta-row + .hero__meta-row {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.hero__panel dt {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -1074,63 +1157,102 @@ h3 {
   color: var(--fg-muted);
 }
 
-.hero__meta dd {
+.hero__panel dd {
   margin: 0;
 }
 
-.hero__cta .btn {
-  min-width: 260px;
+/* ---- Desktop split ----------------------------------------------- */
+
+@media (min-width: 1024px) {
+  .hero__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
+    column-gap: clamp(44px, 4.6vw, 92px);
+    align-items: stretch;
+    /* The composition only — the steps rail sits below it. */
+    min-height: min(68vh, 700px);
+  }
+
+  .hero__plate {
+    aspect-ratio: auto;
+    height: 100%;
+  }
+
+  .hero__panel {
+    right: auto;
+    width: min(88%, 420px);
+  }
 }
 
-/* Tablet: title full width, supporting content in the same split proportions */
+/* ---- Tablet: stacked, plate lands as a wide band ------------------ */
+
 @media (min-width: 700px) and (max-width: 1023px) {
-  .hero__aside {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    column-gap: clamp(32px, 5vw, 56px);
-    row-gap: 24px;
-    align-items: start;
+  .hero__title {
+    font-size: clamp(3rem, 6vw, 4.2rem);
+  }
+
+  .hero__plate {
+    aspect-ratio: 16 / 9;
+  }
+
+  .hero__panel {
+    /* Left-anchored like the lede above it, not floated to the far corner. */
+    right: auto;
+    width: min(62%, 440px);
+  }
+}
+
+/* ---- Phones: panel drops below the plate, nothing overlaps -------- */
+
+@media (max-width: 699px) {
+  .hero {
+    padding-block: 14px var(--section-y-sm);
+  }
+
+  .hero__grid {
+    row-gap: 32px;
+  }
+
+  .hero__title {
+    font-size: clamp(2.35rem, 9.6vw, 3.4rem);
+    line-height: 1.06;
+    letter-spacing: -0.022em;
   }
 
   .hero__intro {
-    grid-row: span 2;
+    max-width: none;
   }
 
-  .hero__meta {
-    padding-top: 0;
-    border-top: 0;
+  .hero__actions {
+    gap: 16px;
   }
 
-  .hero__cta .btn {
+  .hero__actions .btn {
     width: 100%;
     min-width: 0;
   }
+
+  .hero__plate {
+    border-radius: 14px;
+  }
+
+  .hero__panel {
+    position: static;
+    margin-top: 12px;
+    border-radius: 14px;
+  }
 }
 
-@media (max-width: 699px) {
-  .hero__title {
-    font-size: clamp(2.9rem, 12vw, 4.6rem);
-    line-height: 0.96;
-    letter-spacing: -0.025em;
-  }
-
-  .hero__aside {
-    gap: 24px;
-  }
-
+@media (max-width: 420px) {
   .hero__meta-row {
-    grid-template-columns: 96px minmax(0, 1fr);
-  }
-
-  .hero__cta .btn {
-    width: 100%;
-    min-width: 0;
+    grid-template-columns: 84px minmax(0, 1fr);
+    column-gap: 14px;
   }
 }
 
-/* Process steps — three translucent glass cells, equal widths */
+/* Process steps — four translucent glass cells, equal widths */
 .steps {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(10px, 1.2vw, 16px);
   margin: var(--section-y-sm) calc(-1 * var(--panel-bleed)) 0;
   padding: 0;
@@ -1179,6 +1301,12 @@ h3 {
   line-height: 1.55;
   color: var(--fg-muted);
   max-width: 34ch;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 639px) {
@@ -1230,8 +1358,23 @@ h3 {
     transform: none;
   }
 
-  .js .hero__top[data-hero-in] {
-    transition-delay: 0ms;
+  /* Plate: an upward clip reveal, with the crop easing back to rest behind it. */
+  .js .hero__plate {
+    clip-path: inset(0 0 100% 0 round 16px);
+    transition: clip-path 1.15s var(--ease-out) 180ms;
+  }
+
+  .js .is-loaded .hero__plate {
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+
+  .js .hero__plate-img {
+    transform: scale(1.1);
+    transition: transform 1.6s var(--ease-out) 180ms;
+  }
+
+  .js .is-loaded .hero__plate-img {
+    transform: scale(1.04);
   }
 
   /* Keep the entrance timing, add the hover elevation without its delay. */
@@ -3185,6 +3328,22 @@ html[data-theme='dark'] .glass-strong {
 
 html[data-theme='dark'] .step {
   --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+}
+
+/* The hero panel sits on a photographic plate, so it carries its own ground. */
+html[data-theme='dark'] .hero__panel {
+  --glass-bg: linear-gradient(135deg, rgba(28, 26, 23, 0.76), rgba(20, 19, 17, 0.62));
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.55);
+  --glass-highlight: rgba(255, 255, 255, 0.07);
+  --glass-fallback: rgba(22, 21, 19, 0.95);
+}
+
+/* Darken the plate so it reads as night architecture, not a lit cut-out. */
+html[data-theme='dark'] .hero__plate-veil {
+  background:
+    linear-gradient(to top, rgba(12, 11, 10, 0.72), rgba(12, 11, 10, 0.2) 60%),
+    linear-gradient(115deg, rgba(184, 110, 69, 0.16), rgba(12, 11, 10, 0.42) 62%);
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {

@@ -1,3 +1,4 @@
+
 /**
  * ============================================================
  *  DESIGN REVIEW — CONTENT CONFIG
@@ -64,46 +65,67 @@ export const site = {
   },
 
   hero: {
-    eyebrow: 'Website Design Review',
+    eyebrow: 'Digital Growth Partner',
     /** Each item starts on a new line and wraps naturally. All lines share one style. */
-    heading: [{ text: 'Showcasing our best' }, { text: 'Works & impact' }],
+    heading: [
+      { text: 'Building Digital' },
+      { text: 'Experiences That Drive' },
+      { text: 'Business Growth' },
+    ],
     intro:
-      'A curated selection of our most impactful projects, where strategy meets creativity to drive measurable results.',
-    cta: 'Begin the review',
+      'From strategy and design to technology and marketing, we create digital solutions that help businesses strengthen their presence, connect with customers, and achieve measurable growth.',
+    cta: 'View Our Work',
     /** Small key/value details beside the intro. Remove any you don't need. */
     meta: [
-      { label: 'Prepared', value: 'September 2026' },
-      { label: 'Scope', value: 'Homepage and key pages' },
+      { label: 'Approach', value: 'Strategy, design, technology' },
+      { label: 'Focus', value: 'Measurable business growth' },
     ],
     steps: [
-      { number: '01', title: 'Concepts', text: 'Eight curated design directions.' },
-      { number: '02', title: 'Explore', text: 'Browse each live build, page by page.' },
-      { number: '03', title: 'Select', text: 'Confirm the direction to develop.' },
+      {
+        number: '01',
+        title: 'Discovery & Strategy',
+        text: 'We understand your business, audience, challenges, and goals before creating a solution designed around your needs.',
+      },
+      {
+        number: '02',
+        title: 'Planning & Creative Direction',
+        text: 'Our team develops the right strategy, structure, and visual direction to ensure every element has a purpose.',
+      },
+      {
+        number: '03',
+        title: 'Design & Development',
+        text: 'We transform ideas into functional digital experiences using thoughtful design and reliable technology.',
+      },
+      {
+        number: '04',
+        title: 'Launch & Growth',
+        text: 'After launch, we analyse performance, optimise improvements, and support continuous growth.',
+      },
     ],
   },
 
   conceptsIntro: {
-    eyebrow: 'The Concepts',
-    heading: 'Eight proposed directions, each presented as a live, browsable build.',
+    eyebrow: 'Portfolio',
+    heading: 'Selected Works & Business Impact',
   },
 
   review: {
-    eyebrow: 'Review',
-    heading: 'Seen all eight directions?',
-    text: 'Review the individual pages and interactions before confirming the direction you would like to develop further.',
+    eyebrow: 'Client Trust',
+    heading: 'Trusted By Businesses Building Their Future',
+    text: 'We partner with companies that value strategic thinking, creative execution, and digital solutions built for measurable results.',
   },
 
   finalCta: {
-    eyebrow: 'Next step',
-    headingNone: 'Choose the direction that feels most like the brand.',
+    eyebrow: 'Next Step',
+    headingNone: 'Ready To Build Your Next Digital Success Story?',
     headingSelected: 'You’ve chosen {name}.',
-    textNone: 'Once you’ve made a selection, copy it and send it back — we’ll take that direction forward into the final build.',
+    textNone: 'Whether you are launching a new brand or improving your existing digital presence, we help transform ideas into solutions that create meaningful business impact.',
     textSelected: 'Copy your selection and send it back to us. You can still change your mind at any point before development begins.',
   },
 
   footer: {
-    note: 'Prepared for client review.',
-    tagline: 'Eight directions. One final build.',
+    note: 'Have A Vision? Let’s Turn It Into Reality.',
+    tagline: 'Strategic thinking. Creative execution. Digital growth.',
   },
 
   selection: {

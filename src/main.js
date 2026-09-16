@@ -82,7 +82,7 @@ function renderHeader() {
 }
 
 function renderHero() {
-  const { hero } = site;
+  const { hero, background } = site;
   const lines = hero.heading
     .map(
       (line, i) =>
@@ -94,27 +94,36 @@ function renderHero() {
     .join('');
   const steps = (hero.steps || [])
     .map(
-      (s, i) => `<li class="step glass glass-soft" data-hero-in style="--d:${i + 3}">
+      (s, i) => `<li class="step glass glass-soft" data-hero-in style="--d:${i + 4}">
         <span class="step__num">${esc(s.number)}</span>
         <span class="step__title">${esc(s.title)}</span>
         <span class="step__text">${esc(s.text)}</span>
       </li>`,
     )
     .join('');
+  /* The plate reuses the site's own background image at full strength and a different
+     crop: the hero reads as a window cut into the same material. No new assets. */
+  const plate = background?.image?.trim();
 
   return `
   <section class="hero" id="project" aria-labelledby="hero-title">
     <div class="page-container">
-      <div class="hero__top" data-hero-in style="--d:0">
-        <p class="eyebrow">${esc(hero.eyebrow)}</p>
-        <p class="hero__status"><span class="status-dot" aria-hidden="true"></span><span data-selection-status></span></p>
-      </div>
       <div class="hero__grid">
-        <h1 class="hero__title" id="hero-title">${lines}</h1>
-        <div class="hero__aside glass glass-strong" data-hero-in style="--d:1">
-          <p class="hero__intro">${esc(hero.intro)}</p>
-          ${meta ? `<dl class="hero__meta">${meta}</dl>` : ''}
-          <div class="hero__cta">${button({ label: hero.cta, anchor: '#concepts', iconHtml: icon.down, iconClass: 'btn__icon--down' })}</div>
+        <div class="hero__lede">
+          <p class="eyebrow hero__eyebrow" data-hero-in style="--d:0">${esc(hero.eyebrow)}</p>
+          <h1 class="hero__title" id="hero-title">${lines}</h1>
+          <p class="hero__intro" data-hero-in style="--d:1">${esc(hero.intro)}</p>
+          <div class="hero__actions" data-hero-in style="--d:2">
+            ${button({ label: hero.cta, anchor: '#concepts', iconHtml: icon.down, iconClass: 'btn__icon--down' })}
+            <p class="hero__status"><span class="status-dot" aria-hidden="true"></span><span data-selection-status></span></p>
+          </div>
+        </div>
+        <div class="hero__visual">
+          <div class="hero__plate">
+            ${plate ? `<img class="hero__plate-img" src="${esc(plate)}" alt="" width="2400" height="1500" fetchpriority="high" decoding="async">` : ''}
+            <span class="hero__plate-veil" aria-hidden="true"></span>
+          </div>
+          ${meta ? `<dl class="hero__panel glass">${meta}</dl>` : ''}
         </div>
       </div>
       ${steps ? `<ol class="steps" aria-label="How this review works">${steps}</ol>` : ''}
@@ -268,7 +277,7 @@ function renderFinal() {
       <p class="final__text" data-reveal data-final-text></p>
       <div class="final__actions" data-reveal>
         <div class="final__group" data-when="none">
-          ${button({ label: 'Review the concepts', anchor: '#concepts', iconHtml: icon.up, iconClass: 'btn__icon--up' })}
+          ${button({ label: 'View Our Work', anchor: '#concepts', iconHtml: icon.up, iconClass: 'btn__icon--up' })}
         </div>
         <div class="final__group" data-when="selected" hidden>
           ${button({ label: 'Copy selection', iconHtml: icon.copy, attrs: 'data-copy' })}

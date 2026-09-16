@@ -448,8 +448,8 @@ function renderWork() {
   <section class="cp-work" aria-labelledby="cp-work-title">
     <div class="page-container">
       <div class="cp-work__head">
-        <p class="eyebrow" data-cp-reveal>Design review</p>
-        <h2 class="cp-work__title" id="cp-work-title" data-cp-reveal>What makes this direction work</h2>
+        <p class="eyebrow" data-cp-reveal>Execution</p>
+        <h2 class="cp-work__title" id="cp-work-title" data-cp-reveal>Bringing ideas into reality.</h2>
         <p class="cp-work__intro" data-cp-reveal>The details worth looking for as you browse the live build — each shown as it appears on the ${esc(concept.name)} website.</p>
       </div>
       <ol class="cp-work__list">${items}</ol>
