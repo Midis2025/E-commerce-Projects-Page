@@ -81,8 +81,60 @@ function renderHeader() {
   </header>`;
 }
 
+/* The hero showcase runs on the real concepts: their own screenshots, names,
+   categories and pages. Nothing here is invented or stock. */
+function renderShowcase() {
+  const slides = concepts
+    .map((c, i) => {
+      const src = typeof c.previewImage === 'string' ? c.previewImage.trim() : '';
+      // Only the first frame loads up front; the rest are fetched as they come up.
+      const attrs = i === 0 ? `src="${esc(src)}" fetchpriority="high"` : `data-src="${esc(src)}"`;
+      return `<span class="showcase__slide${i === 0 ? ' is-current' : ''}" data-slide="${i}" aria-hidden="${i === 0 ? 'false' : 'true'}">
+        ${src ? `<img class="showcase__img" ${attrs} alt="${esc(c.previewAlt || `${c.name} homepage`)}" width="1440" height="2700" decoding="async">` : ''}
+      </span>`;
+    })
+    .join('');
+
+  const rail = concepts
+    .map(
+      (c, i) =>
+        `<li><button type="button" class="showcase__dot${i === 0 ? ' is-current' : ''}" data-dot="${i}"
+          aria-label="Show ${esc(c.name)}"${i === 0 ? ' aria-current="true"' : ''}><span></span></button></li>`,
+    )
+    .join('');
+
+  const first = concepts[0];
+  const traits = (first.traits || []).join(' · ');
+
+  return `
+  <div class="showcase" data-showcase>
+    <a class="showcase__stack" href="${esc(conceptPath(first))}" data-showcase-link draggable="false"
+      aria-label="Open the ${esc(first.name)} project">
+      <span class="preview showcase__frame">
+        <span class="preview__bar" aria-hidden="true">
+          <span class="preview__dots"><i></i><i></i><i></i></span>
+          <span class="preview__url"><span data-showcase-url>${esc(displayUrl(safeUrl(first.websiteUrl)) || '')}</span></span>
+          <span class="preview__open"><span class="preview__open-text">Explore</span>${icon.right}</span>
+        </span>
+        <span class="preview__viewport showcase__viewport">${slides}</span>
+      </span>
+      <span class="showcase__card glass">
+        <span class="showcase__kicker">
+          <span class="showcase__eyebrow">Featured project</span>
+          <span class="showcase__count"><span data-showcase-index>${esc(first.number)}</span> / ${esc(pad(concepts.length))}</span>
+        </span>
+        <span class="showcase__name" data-showcase-name>${esc(first.name)}</span>
+        <span class="showcase__traits" data-showcase-traits>${esc(traits)}</span>
+        <span class="showcase__cta">View project ${icon.right}</span>
+      </span>
+    </a>
+    <ol class="showcase__rail" aria-label="Featured projects">${rail}</ol>
+    <p class="sr-only" aria-live="polite" data-showcase-live></p>
+  </div>`;
+}
+
 function renderHero() {
-  const { hero, background } = site;
+  const { hero } = site;
   const lines = hero.heading
     .map(
       (line, i) =>
@@ -101,9 +153,6 @@ function renderHero() {
       </li>`,
     )
     .join('');
-  /* The plate reuses the site's own background image at full strength and a different
-     crop: the hero reads as a window cut into the same material. No new assets. */
-  const plate = background?.image?.trim();
 
   return `
   <section class="hero" id="project" aria-labelledby="hero-title">
@@ -117,14 +166,9 @@ function renderHero() {
             ${button({ label: hero.cta, anchor: '#concepts', iconHtml: icon.down, iconClass: 'btn__icon--down' })}
             <p class="hero__status"><span class="status-dot" aria-hidden="true"></span><span data-selection-status></span></p>
           </div>
+          ${meta ? `<dl class="hero__meta" data-hero-in style="--d:3">${meta}</dl>` : ''}
         </div>
-        <div class="hero__visual">
-          <div class="hero__plate">
-            ${plate ? `<img class="hero__plate-img" src="${esc(plate)}" alt="" width="2400" height="1500" fetchpriority="high" decoding="async">` : ''}
-            <span class="hero__plate-veil" aria-hidden="true"></span>
-          </div>
-          ${meta ? `<dl class="hero__panel glass">${meta}</dl>` : ''}
-        </div>
+        <div class="hero__visual" data-hero-in style="--d:2">${renderShowcase()}</div>
       </div>
       ${steps ? `<ol class="steps" aria-label="How this review works">${steps}</ol>` : ''}
     </div>
@@ -679,6 +723,190 @@ function setupThemeToggle() {
  * Boot
  * ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------
+ * Hero showcase — a featured-work slider over the real concepts. The
+ * outgoing project travels out to the left while the incoming one
+ * arrives from the right; the card, browser chrome and link all change
+ * with it. Autoplays, pauses while the visitor is on it, takes swipes,
+ * and holds still for reduced motion.
+ * ------------------------------------------------------------------ */
+
+const SHOWCASE_INTERVAL = 4800;
+const SHOWCASE_SWIPE = 44;
+
+function setupShowcase() {
+  const root = $('[data-showcase]');
+  if (!root || concepts.length < 2) return;
+
+  const slides = $$('.showcase__slide', root);
+  const dots = $$('[data-dot]', root);
+  const stack = $('[data-showcase-link]', root);
+  const nameEl = $('[data-showcase-name]', root);
+  const traitsEl = $('[data-showcase-traits]', root);
+  const indexEl = $('[data-showcase-index]', root);
+  const urlEl = $('[data-showcase-url]', root);
+  const liveEl = $('[data-showcase-live]', root);
+  const card = $('.showcase__card', root);
+
+  let current = 0;
+  let timer = 0;
+  let held = false;
+
+  // Fetch a frame just before it is needed, so only what gets shown is loaded.
+  const preload = (i) => {
+    const img = $('img', slides[i]);
+    if (img?.dataset.src) {
+      img.src = img.dataset.src;
+      delete img.dataset.src;
+    }
+  };
+
+  const show = (next, { announce = false, direction } = {}) => {
+    const count = concepts.length;
+    const i = ((next % count) + count) % count;
+    if (i === current) return;
+    const concept = concepts[i];
+
+    // Shortest way round decides which side the new project comes in from,
+    // unless a swipe already said so.
+    const forward = direction ? direction === 'next' : (i - current + count) % count <= count / 2;
+    root.dataset.dir = forward ? 'next' : 'prev';
+
+    preload(i);
+    preload((i + 1) % count);
+
+    const outgoing = slides[current];
+    outgoing.classList.remove('is-current');
+    outgoing.classList.add('is-leaving');
+    outgoing.setAttribute('aria-hidden', 'true');
+    // Clear the travelling state once it is off screen, so it can re-enter later.
+    window.setTimeout(() => outgoing.classList.remove('is-leaving'), 900);
+
+    slides[i].classList.remove('is-leaving');
+    slides[i].classList.add('is-current');
+    slides[i].setAttribute('aria-hidden', 'false');
+
+    dots[current]?.classList.remove('is-current');
+    dots[current]?.removeAttribute('aria-current');
+    dots[i]?.classList.add('is-current');
+    dots[i]?.setAttribute('aria-current', 'true');
+
+    // Re-run the card's entrance so the new project reads as a change, not a swap.
+    card.classList.remove('is-changing');
+    void card.offsetWidth;
+    card.classList.add('is-changing');
+
+    nameEl.textContent = concept.name;
+    traitsEl.textContent = (concept.traits || []).join(' · ');
+    indexEl.textContent = concept.number;
+    urlEl.textContent = displayUrl(safeUrl(concept.websiteUrl)) || '';
+    stack.setAttribute('href', conceptPath(concept));
+    stack.setAttribute('aria-label', `Open the ${concept.name} project`);
+    if (announce) liveEl.textContent = `${concept.number} — ${concept.name}`;
+
+    current = i;
+  };
+
+  const stop = () => {
+    window.clearInterval(timer);
+    timer = 0;
+  };
+
+  const start = () => {
+    stop();
+    if (held || reducedMotion.matches || document.hidden) return;
+    timer = window.setInterval(() => show(current + 1, { direction: 'next' }), SHOWCASE_INTERVAL);
+  };
+
+  const hold = (on) => {
+    held = on;
+    on ? stop() : start();
+  };
+
+  dots.forEach((dot) =>
+    dot.addEventListener('click', () => {
+      show(Number(dot.dataset.dot), { announce: true });
+      start();
+    }),
+  );
+
+  root.addEventListener('pointerenter', () => hold(true));
+  root.addEventListener('pointerleave', () => hold(false));
+  root.addEventListener('focusin', () => hold(true));
+  root.addEventListener('focusout', () => {
+    if (!root.contains(document.activeElement)) hold(false);
+  });
+  document.addEventListener('visibilitychange', start);
+  reducedMotion.addEventListener?.('change', start);
+
+  /* Swipe. Tracked on the stack so a horizontal drag changes project and a
+     vertical one still scrolls the page. A drag must not follow the link. */
+  let down = null;
+  let swiped = false;
+
+  stack.addEventListener('dragstart', (event) => event.preventDefault());
+
+  stack.addEventListener('pointerdown', (event) => {
+    if (event.button && event.pointerType === 'mouse') return;
+    down = { x: event.clientX, y: event.clientY, id: event.pointerId };
+    swiped = false;
+    // Capture so the gesture still resolves if the pointer leaves the frame.
+    try {
+      stack.setPointerCapture(event.pointerId);
+    } catch {}
+  });
+
+  stack.addEventListener('pointerup', (event) => {
+    if (down?.id !== undefined) {
+      try {
+        stack.releasePointerCapture(down.id);
+      } catch {}
+    }
+    if (!down) return;
+    const dx = event.clientX - down.x;
+    const dy = event.clientY - down.y;
+    down = null;
+    if (Math.abs(dx) < SHOWCASE_SWIPE || Math.abs(dx) <= Math.abs(dy)) return;
+    swiped = true;
+    show(current + (dx < 0 ? 1 : -1), { announce: true, direction: dx < 0 ? 'next' : 'prev' });
+    start();
+  });
+
+  stack.addEventListener('pointercancel', () => {
+    down = null;
+  });
+
+  stack.addEventListener('click', (event) => {
+    if (!swiped) return;
+    event.preventDefault();
+    swiped = false;
+  });
+
+  preload(1);
+  start();
+
+  /* Parallax: the frame drifts a little against the page as the hero scrolls
+     past. One rAF per scroll, and nothing at all on touch or reduced motion. */
+  if (reducedMotion.matches || !finePointer.matches) return;
+  const hero = root.closest('.hero');
+  let ticking = false;
+  const drift = () => {
+    const seen = Math.min(1, Math.max(0, window.scrollY / (hero.offsetHeight || 1)));
+    root.style.setProperty('--drift', `${(seen * 26).toFixed(1)}px`);
+    ticking = false;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(drift);
+    },
+    { passive: true },
+  );
+  drift();
+}
+
 function init() {
   render();
   initModal();
@@ -692,6 +920,7 @@ function init() {
   setupScrollEffects();
   setupReveal();
   setupDepth();
+  setupShowcase();
 
   // Returning from a concept page (/#alinkriti, /#review): the sections are
   // rendered by script, so land on the target once it exists.

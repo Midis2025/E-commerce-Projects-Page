@@ -1073,83 +1073,27 @@ h3 {
   color: var(--fg-muted);
 }
 
-/* ---- Architectural plate ---------------------------------------- */
+/* ---- Detail rows — now under the CTA, in the lede column ---------- */
 
-.hero__visual {
-  position: relative;
-  align-self: stretch;
-}
-
-.hero__plate {
-  position: relative;
-  /* Ratio-driven until the desktop split gives the column a real height.
-     Never combine this with height:100% — the two make the size circular. */
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  box-shadow:
-    0 40px 80px -44px rgba(20, 18, 15, 0.5),
-    0 2px 8px rgba(20, 18, 15, 0.05);
-}
-
-.hero__plate-img {
-  display: block;
+.hero__meta {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* A different crop from the fixed page background, so the two read as one
-     material seen twice rather than a repeat. */
-  object-position: 72% 50%;
-  filter: saturate(1.1) contrast(1.06);
-  transform: scale(1.04);
-}
-
-/* Warm floor under the panel so its text keeps contrast over any crop. */
-.hero__plate-veil {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to top, rgba(32, 27, 21, 0.46), rgba(32, 27, 21, 0) 60%),
-    linear-gradient(115deg, rgba(184, 110, 69, 0.14), rgba(255, 255, 255, 0) 58%);
-  pointer-events: none;
-}
-
-/* ---- Glass information panel ------------------------------------ */
-
-.hero__panel {
-  --glass-bg: linear-gradient(135deg, rgba(252, 250, 246, 0.76), rgba(246, 242, 235, 0.6));
-  --glass-blur: 18px;
-  --glass-saturate: 125%;
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --glass-shadow: 0 20px 44px -22px rgba(20, 18, 15, 0.45);
-  --glass-highlight: rgba(255, 255, 255, 0.6);
-  --glass-fallback: rgba(249, 246, 241, 0.94);
-  position: absolute;
-  right: clamp(14px, 1.4vw, 22px);
-  bottom: clamp(14px, 1.4vw, 22px);
-  left: clamp(14px, 1.4vw, 22px);
+  max-width: 46ch;
   display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: clamp(18px, 1.5vw, 24px) clamp(18px, 1.6vw, 26px);
-  border-radius: 12px;
+  gap: 10px;
+  margin: clamp(30px, 2.4vw, 40px) 0 0;
+  padding-top: clamp(20px, 1.6vw, 26px);
+  border-top: 1px solid var(--line);
   font-size: 14px;
 }
 
 .hero__meta-row {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
+  grid-template-columns: 104px minmax(0, 1fr);
   column-gap: 20px;
   align-items: baseline;
 }
 
-.hero__meta-row + .hero__meta-row {
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-}
-
-.hero__panel dt {
+.hero__meta dt {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -1157,51 +1101,327 @@ h3 {
   color: var(--fg-muted);
 }
 
-.hero__panel dd {
+.hero__meta dd {
   margin: 0;
+}
+
+/* ---- Featured-work showcase -------------------------------------
+   Reuses the browser frame from the concept sections, so the hero is
+   made of the same parts as the rest of the page. The slides are the
+   concepts' own screenshots; the card reads their real name, number
+   and categories. ---------------------------------------------------- */
+
+.hero__visual {
+  position: relative;
+  align-self: center;
+  min-width: 0;
+}
+
+.showcase {
+  --drift: 0px;
+  position: relative;
+  display: grid;
+  gap: clamp(18px, 1.6vw, 26px);
+  translate: 0 var(--drift);
+}
+
+.showcase__stack {
+  position: relative;
+  display: block;
+  padding-bottom: clamp(52px, 5vw, 76px);
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--frame-radius);
+}
+
+.showcase__stack:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+/* Ratio comes from .preview__viewport: 16/10, and 4/3 on phones. */
+.showcase__frame {
+  --frame-depth: 0 44px 90px -38px rgba(20, 18, 15, 0.42), 0 10px 28px rgba(20, 18, 15, 0.09);
+  display: block;
+}
+
+/* Slides travel: the outgoing project leaves to the left, the incoming one
+   arrives from the right. [data-dir="prev"] mirrors it for a backwards move. */
+.showcase {
+  --slide-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --slide-in: 9%;
+  --slide-out: -9%;
+}
+
+.showcase[data-dir='prev'] {
+  --slide-in: -9%;
+  --slide-out: 9%;
+}
+
+.showcase__slide {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 0;
+  opacity: 0;
+  visibility: hidden;
+  /* Parked off to the entry side, ready to come in. */
+  transform: translate3d(var(--slide-in), 0, 0);
+  transition:
+    opacity 0.82s var(--slide-ease),
+    transform 0.82s var(--slide-ease),
+    visibility 0s linear 0.82s;
+}
+
+.showcase__slide.is-current {
+  z-index: 2;
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 0.82s var(--slide-ease),
+    transform 0.82s var(--slide-ease),
+    visibility 0s;
+}
+
+.showcase__slide.is-leaving {
+  z-index: 1;
+  opacity: 0;
+  visibility: visible;
+  transform: translate3d(var(--slide-out), 0, 0);
+  transition:
+    opacity 0.82s var(--slide-ease),
+    transform 0.82s var(--slide-ease),
+    visibility 0s linear 0.82s;
+}
+
+.showcase__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The captures are full pages: hold the top, where the design lives. */
+  object-position: 50% 0%;
+  transform: scale(1.05);
+  transition: transform 1.25s var(--slide-ease);
+}
+
+.showcase__slide.is-current .showcase__img {
+  transform: scale(1);
+}
+
+/* A horizontal drag changes project; a vertical one still scrolls the page. */
+.showcase__stack {
+  touch-action: pan-y;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase__slide,
+  .showcase__slide.is-leaving,
+  .showcase__img {
+    transform: none;
+  }
+}
+
+/* ---- Floating project card --------------------------------------- */
+
+.showcase__card {
+  --glass-bg: linear-gradient(135deg, rgba(252, 250, 246, 0.86), rgba(245, 241, 234, 0.74));
+  --glass-blur: 20px;
+  --glass-saturate: 130%;
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 26px 52px -24px rgba(20, 18, 15, 0.5);
+  --glass-highlight: rgba(255, 255, 255, 0.7);
+  --glass-fallback: rgba(250, 247, 242, 0.96);
+  position: absolute;
+  bottom: 0;
+  left: clamp(14px, 1.4vw, 24px);
+  display: grid;
+  gap: 6px;
+  width: min(84%, 340px);
+  padding: clamp(16px, 1.3vw, 22px) clamp(18px, 1.4vw, 24px);
+  border-radius: 14px;
+}
+
+.showcase__kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.showcase__count {
+  color: var(--accent-text);
+}
+
+.showcase__name {
+  font-family: var(--display);
+  font-size: clamp(1.4rem, 1.5vw, 1.85rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.showcase__traits {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--fg-muted);
+}
+
+.showcase__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.showcase__cta .icon {
+  transition: translate 0.4s var(--ease-out);
+}
+
+/* ---- Rail -------------------------------------------------------- */
+
+.showcase__rail {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.showcase__rail li {
+  flex: 1;
+}
+
+.showcase__dot {
+  display: block;
+  width: 100%;
+  padding: 8px 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.showcase__dot span {
+  display: block;
+  height: 2px;
+  background: var(--line-strong);
+  opacity: 0.4;
+  transition:
+    opacity 0.4s var(--ease),
+    background-color 0.4s var(--ease);
+}
+
+.showcase__dot:hover span {
+  opacity: 0.7;
+}
+
+.showcase__dot.is-current span {
+  background: var(--accent);
+  opacity: 1;
+}
+
+.showcase__dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- Motion ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .showcase__card {
+    transition:
+      translate 0.5s var(--ease-out),
+      box-shadow 0.5s var(--ease);
+  }
+
+  /* Re-played on every change so a new project announces itself. */
+  .showcase__card.is-changing {
+    animation: showcaseCard 0.6s var(--ease-out);
+  }
+
+  .showcase__cta .icon {
+    translate: 0 0;
+  }
+}
+
+@keyframes showcaseCard {
+  from {
+    opacity: 0.4;
+    translate: 0 8px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .showcase__stack:hover .showcase__frame {
+    --lift: -5px;
+    --scale: 1.008;
+  }
+
+  .showcase__stack:hover .showcase__card {
+    translate: 0 -4px;
+    --glass-shadow: 0 32px 60px -22px rgba(20, 18, 15, 0.55);
+  }
+
+  .showcase__stack:hover .showcase__cta .icon {
+    translate: 4px 0;
+  }
+
+  .showcase__stack:hover .showcase__img {
+    transform: scale(1.03);
+  }
 }
 
 /* ---- Desktop split ----------------------------------------------- */
 
 @media (min-width: 1024px) {
   .hero__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
-    column-gap: clamp(44px, 4.6vw, 92px);
-    align-items: stretch;
-    /* The composition only — the steps rail sits below it. */
-    min-height: min(68vh, 700px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    column-gap: clamp(40px, 4vw, 80px);
+    align-items: center;
   }
 
-  .hero__plate {
-    aspect-ratio: auto;
-    height: 100%;
+  .showcase__stack {
+    /* Deep enough that only the card's top edge crosses the screenshot. */
+    padding-bottom: clamp(64px, 6vw, 96px);
   }
 
-  .hero__panel {
-    right: auto;
-    width: min(88%, 420px);
+  .showcase__card {
+    /* Overhangs into the column gap, so it reads as floating in front of the
+       frame rather than pasted onto it. */
+    left: clamp(-28px, -1.8vw, -10px);
   }
 }
 
-/* ---- Tablet: stacked, plate lands as a wide band ------------------ */
+/* ---- Tablet ------------------------------------------------------- */
 
 @media (min-width: 700px) and (max-width: 1023px) {
   .hero__title {
     font-size: clamp(3rem, 6vw, 4.2rem);
   }
 
-  .hero__plate {
-    aspect-ratio: 16 / 9;
-  }
-
-  .hero__panel {
-    /* Left-anchored like the lede above it, not floated to the far corner. */
-    right: auto;
-    width: min(62%, 440px);
+  .showcase__card {
+    width: min(58%, 380px);
   }
 }
 
-/* ---- Phones: panel drops below the plate, nothing overlaps -------- */
+/* ---- Phones ------------------------------------------------------- */
 
 @media (max-width: 699px) {
   .hero {
@@ -1209,7 +1429,7 @@ h3 {
   }
 
   .hero__grid {
-    row-gap: 32px;
+    row-gap: 34px;
   }
 
   .hero__title {
@@ -1231,13 +1451,15 @@ h3 {
     min-width: 0;
   }
 
-  .hero__plate {
-    border-radius: 14px;
+  /* The card drops under the frame: no overlap, no shrunken visual. */
+  .showcase__stack {
+    padding-bottom: 0;
   }
 
-  .hero__panel {
+  .showcase__card {
     position: static;
-    margin-top: 12px;
+    width: 100%;
+    margin-top: 14px;
     border-radius: 14px;
   }
 }
@@ -1358,23 +1580,39 @@ h3 {
     transform: none;
   }
 
-  /* Plate: an upward clip reveal, with the crop easing back to rest behind it. */
-  .js .hero__plate {
-    clip-path: inset(0 0 100% 0 round 16px);
+  /* Showcase: the frame clips open, the first screenshot settles behind it. */
+  .js .showcase__frame {
+    clip-path: inset(0 0 100% 0 round var(--frame-radius));
     transition: clip-path 1.15s var(--ease-out) 180ms;
   }
 
-  .js .is-loaded .hero__plate {
-    clip-path: inset(0 0 0 0 round 16px);
+  .js .is-loaded .showcase__frame {
+    clip-path: inset(0 0 0 0 round var(--frame-radius));
   }
 
-  .js .hero__plate-img {
-    transform: scale(1.1);
-    transition: transform 1.6s var(--ease-out) 180ms;
+  .js .showcase__slide.is-current .showcase__img {
+    transform: scale(1.09);
+    transition: transform 1.7s var(--ease-out) 180ms;
   }
 
-  .js .is-loaded .hero__plate-img {
-    transform: scale(1.04);
+  .js .is-loaded .showcase__slide.is-current .showcase__img {
+    transform: scale(1);
+  }
+
+  /* The card arrives after the frame has opened. */
+  .js .showcase__card,
+  .js .showcase__rail {
+    opacity: 0;
+    translate: 0 14px;
+    transition:
+      opacity 0.7s var(--ease) 760ms,
+      translate 0.8s var(--ease-out) 760ms;
+  }
+
+  .js .is-loaded .showcase__card,
+  .js .is-loaded .showcase__rail {
+    opacity: 1;
+    translate: 0 0;
   }
 
   /* Keep the entrance timing, add the hover elevation without its delay. */
@@ -3330,20 +3568,19 @@ html[data-theme='dark'] .step {
   --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
 }
 
-/* The hero panel sits on a photographic plate, so it carries its own ground. */
-html[data-theme='dark'] .hero__panel {
-  --glass-bg: linear-gradient(135deg, rgba(28, 26, 23, 0.76), rgba(20, 19, 17, 0.62));
+/* The project card floats over a screenshot, so it carries its own ground. */
+html[data-theme='dark'] .showcase__card {
+  --glass-bg: linear-gradient(135deg, rgba(30, 28, 25, 0.88), rgba(20, 19, 17, 0.76));
   --glass-border: rgba(255, 255, 255, 0.15);
-  --glass-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.55);
+  --glass-shadow: 0 26px 52px -20px rgba(0, 0, 0, 0.6);
   --glass-highlight: rgba(255, 255, 255, 0.07);
-  --glass-fallback: rgba(22, 21, 19, 0.95);
+  --glass-fallback: rgba(22, 21, 19, 0.96);
 }
 
-/* Darken the plate so it reads as night architecture, not a lit cut-out. */
-html[data-theme='dark'] .hero__plate-veil {
-  background:
-    linear-gradient(to top, rgba(12, 11, 10, 0.72), rgba(12, 11, 10, 0.2) 60%),
-    linear-gradient(115deg, rgba(184, 110, 69, 0.16), rgba(12, 11, 10, 0.42) 62%);
+html[data-theme='dark'] .showcase__frame {
+  --frame-depth: 0 44px 90px -34px rgba(0, 0, 0, 0.6), 0 10px 28px rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
